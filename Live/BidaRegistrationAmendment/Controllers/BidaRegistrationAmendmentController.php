@@ -46,6 +46,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Validator;
 use yajra\Datatables\Datatables;
+use App\Modules\ProcessPath\Services\BRCommonPoolManager;
 
 class BidaRegistrationAmendmentController extends Controller
 {
@@ -320,39 +321,7 @@ class BidaRegistrationAmendmentController extends Controller
                         ->where(['app_id' => $bra_ref_no, 'process_type_id' => $this->process_type_id, 'status' => 1])
                         ->whereNotIn('amendment_type', ['delete', 'remove'])
                         ->get();
-                    // $BRListOfDirectors = DB::table('list_of_director_amendment')
-                    //     ->select(DB::raw('
-                    //         nationality_type, identity_type,
-                    //         ifnull(n_l_director_name, l_director_name) as l_director_name,
-                    //         ifnull(n_l_director_designation, l_director_designation) as l_director_designation,
-                    //         ifnull(n_l_director_nationality, l_director_nationality) as l_director_nationality,
-                    //         ifnull(n_nid_etin_passport, nid_etin_passport) as nid_etin_passport,
-                    //         gender, date_of_birth, passport_type, date_of_expiry, passport_scan_copy, status
-                    //     '))
-                    //     ->where(['app_id' => $bra_ref_no, 'process_type_id' => $this->process_type_id, 'status' => 1])
-                    //     ->get();
-
-                    // $listOfMachineryImported = DB::table('list_of_machinery_imported_amendment')
-                    //     ->select(DB::raw('
-                    //         ifnull(n_l_machinery_imported_name, l_machinery_imported_name) as l_machinery_imported_name,
-                    //         ifnull(n_l_machinery_imported_qty, l_machinery_imported_qty) as l_machinery_imported_qty,
-                    //         ifnull(n_l_machinery_imported_unit_price, l_machinery_imported_unit_price) as l_machinery_imported_unit_price,
-                    //         ifnull(n_l_machinery_imported_total_value, l_machinery_imported_total_value) as l_machinery_imported_total_value
-                    //     '))
-                    //     ->where(['app_id' => $bra_ref_no, 'process_type_id' => $this->process_type_id, 'status' => 1])
-                    //     ->whereNotIn('amendment_type', ['delete', 'remove'])
-                    //     ->get();
-                    
-                    $listOfMachineryImported = DB::table('list_of_machinery_imported_amendment')
-                    ->select(DB::raw('
-                            IFNULL(NULLIF(n_l_machinery_imported_name, \'\'), l_machinery_imported_name) as l_machinery_imported_name,
-                            IFNULL(NULLIF(n_l_machinery_imported_qty, \'\'), l_machinery_imported_qty) as l_machinery_imported_qty,
-                            IFNULL(NULLIF(n_l_machinery_imported_unit_price, \'\'), l_machinery_imported_unit_price) as l_machinery_imported_unit_price,
-                            IFNULL(NULLIF(n_l_machinery_imported_total_value, \'\'), l_machinery_imported_total_value) as l_machinery_imported_total_value
-                        '))
-                        ->where(['app_id' => $bra_ref_no, 'process_type_id' => $this->process_type_id, 'status' => 1])
-                        ->whereNotIn('amendment_type', ['delete', 'remove'])
-                        ->get();
+                   
 
 
                     $listOfMachineryLocal = DB::table('list_of_machinery_local_amendment')
@@ -420,15 +389,6 @@ class BidaRegistrationAmendmentController extends Controller
                             'status',
                         ]);
 
-                    $listOfMachineryImported = ListOfMachineryImported::where('app_id', $getBrApprovedData->ref_id)
-                        ->where('process_type_id', $getBrApprovedData->process_type_id)
-                        ->get([
-                            'l_machinery_imported_name',
-                            'l_machinery_imported_qty',
-                            'l_machinery_imported_unit_price',
-                            'l_machinery_imported_total_value',
-                        ]);
-
                     $listOfMachineryLocal = ListOfMachineryLocal::where('app_id', $getBrApprovedData->ref_id)
                         ->where('process_type_id', $getBrApprovedData->process_type_id)
                         ->get([
@@ -446,6 +406,18 @@ class BidaRegistrationAmendmentController extends Controller
                             'loan_amount',
                         ]);
                 }
+                // load machinery imported data start
+                $ref_process_type_id = $getBrInfo->bra_tracking_no ? 12 : 102;
+                $ref_tracking_no = $getBrInfo->bra_tracking_no ? $getBrInfo->bra_tracking_no : $getBrInfo->br_tracking_no;
+
+                $ref_id = ProcessList::where('tracking_no', $ref_tracking_no)
+                    ->where('process_type_id', $ref_process_type_id)
+                    ->where('status_id', 25)
+                    ->value('ref_id');
+
+                $listOfMachineryImported = BRCommonPoolManager::listOfMachineryImported($ref_process_type_id, $ref_id);
+                // load machinery imported data end
+
 
                 // BR or BRA session data
                 if (count($getAnnualProductionCapacity) > 0) {
@@ -538,7 +510,7 @@ class BidaRegistrationAmendmentController extends Controller
                 'local_sales' => 'Existing local sales',
                 'foreign_sales' => 'Existing foreign sales',
                 'n_local_sales' => 'Proposed local sales',
-                'n_foreign_sales' => 'Proposed foreign sales'
+                'n_foreign_sales' => 'Proposed foreign sales',
             ];
             
             foreach ($salesTypes as $type => $label) {
@@ -1180,6 +1152,7 @@ class BidaRegistrationAmendmentController extends Controller
             if (!empty($appData->id) && count(Session::get('brListOfMachineryImported')) > 0) {
                 foreach (Session::get('brListOfMachineryImported') as $machineryImported) {
                     $listOfMachineryImported = new ListOfMachineryImportedAmendment();
+                    $listOfMachineryImported->ref_master_id = isset($machineryImported->ref_master_id) ? $machineryImported->ref_master_id : 0;
                     $listOfMachineryImported->app_id = $appData->id;
                     $listOfMachineryImported->process_type_id = $this->process_type_id;
                     $listOfMachineryImported->l_machinery_imported_name = $machineryImported->l_machinery_imported_name;
@@ -2599,11 +2572,24 @@ class BidaRegistrationAmendmentController extends Controller
         return "";
     }
 
-    function validateSales($localSales, $foreignSales, $messagePrefix) {
-        $totalSales = $localSales + $foreignSales;
+    // function validateSales($localSales, $foreignSales, $messagePrefix) {
+    //     $totalSales = $localSales + $foreignSales;
+    
+    //     if ($totalSales > 100) {
+    //         Session::flash('error', "The sum of $messagePrefix local sales and foreign sales should be within the range of 0 to 100");
+    //         return false;
+    //     }
+    
+    //     return true;
+    // }
+
+    function validateSales() {
+        $args = func_get_args();
+        $messagePrefix = array_shift($args);
+        $totalSales = array_sum($args);
     
         if ($totalSales > 100) {
-            Session::flash('error', "The sum of $messagePrefix local sales and foreign sales should be within the range of 0 to 100");
+            Session::flash('error', "The sum of $messagePrefix sales should be within the range of 0 to 100");
             return false;
         }
     

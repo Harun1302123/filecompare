@@ -2,6 +2,7 @@
 
 namespace App\Modules\BidaRegistrationAmendment\Controllers;
 
+use App\BRCommonPool;
 use App\Libraries\ACL;
 use App\Libraries\CommonFunction;
 use App\Libraries\Encryption;
@@ -505,20 +506,35 @@ class AppSubDetailsController extends Controller
             'annual_production_capacity_amendment.*',
         ]);
 
-        $html = strval(view("BidaRegistrationAmendment::annual_production_capacity.load_apc_data", compact('getData', 'viewMode')));
+        $html = strval(view("BidaRegistrationAmendment::annual_production_capacity.load_apc_data", compact('getData', 'viewMode','app_id')));
         return response()->json(['responseCode' => 1, 'html' => $html]);
     }
 
-    public function annualProductionCapacityUpdateForm($apc_id)
+    public function annualProductionCapacityUpdateForm($apc_id, $app_id)
     {
         $apc_decoded_id = Encryption::decodeId($apc_id);
-        $amendment_type = [
-            '' => 'Select One',
-            'add' => 'Add',
-            'edit' => 'Edit',
-            'remove' => 'Remove',
-//            'no change' => 'No Change',
-        ];
+        $app_id = Encryption::decodeId($app_id);
+        $is_mannual = BidaRegistrationAmendment::find($app_id)->is_bra_approval_manually;
+        if($is_mannual == 'yes'){
+            $amendment_type = [
+                '' => 'Select One',
+                'add' => 'Add',
+                'edit' => 'Edit',
+                'edit-existing' => 'Edit Existing',
+                'remove' => 'Remove',
+    //            'no change' => 'No Change',
+            ];
+        }
+        else{
+            $amendment_type = [
+                '' => 'Select One',
+                'add' => 'Add',
+                'edit' => 'Edit',
+                'remove' => 'Remove',
+    //            'no change' => 'No Change',
+            ];
+        }
+        
         $productUnit = ['0' => 'Select one'] + ProductUnit::where('status', 1)->where('is_archive', 0)->orderBy('name')->lists('name', 'id')->all();
         $get_apc_data = AnnualProductionCapacityAmendment::find($apc_decoded_id);
         return view('BidaRegistrationAmendment::annual_production_capacity.edit', compact('get_apc_data', 'productUnit', 'amendment_type'));
@@ -539,7 +555,18 @@ class AppSubDetailsController extends Controller
         $apcData->n_price_usd = !empty($request->n_price_usd) ? $request->n_price_usd : null;
         $apcData->n_price_taka = !empty($request->n_price_taka) ? $request->n_price_taka : null;
 
-        $apcData->amendment_type = !empty($request->get('amendment_type')) ? $request->get('amendment_type') : 'no change';
+        // $apcData->amendment_type = !empty($request->get('amendment_type')) ? $request->get('amendment_type') : 'no change';
+        if(!empty($request->get('amendment_type'))){
+            if($request->get('amendment_type') == 'edit-existing'){
+                $apcData->amendment_type = 'edit';
+            }
+            else{
+                $apcData->amendment_type = $request->get('amendment_type');
+            }
+        }
+        else{
+            $apcData->amendment_type = 'no change';
+        }
         $apcData->save();
 
         return response()->json([
@@ -708,28 +735,43 @@ class AppSubDetailsController extends Controller
         }
         try {
             DB::beginTransaction();
-            $refAppTrackingNo = trim($request->get('ref_app_tracking_no'));
 
             $listOfMachineryImported = ListOfMachineryImportedAmendment::find($request->im_id);
             
             $ref_app_tracking_no = BidaRegistrationAmendment::where('id', $listOfMachineryImported->app_id)->value('ref_app_tracking_no');
-            
-            $listOfMachineryImportedMaster = MasterMachineryImported::where('ref_app_tracking_no', $ref_app_tracking_no)
-                ->whereNotIn('amendment_type', ['delete', 'remove'])
-                ->where('total_imported', '>', 0)
-                ->where('status', 1)
-                ->select('name', 'total_imported')
-                ->get();
 
-            if(count($listOfMachineryImportedMaster) > 0 && !empty($request->l_machinery_imported_qty) || !empty($request->n_l_machinery_imported_qty)) {
-                foreach ($listOfMachineryImportedMaster as $machineryImportedMaster) {
-                    if (MasterMachineryImported::processName($machineryImportedMaster->name) == MasterMachineryImported::processName($listOfMachineryImported->l_machinery_imported_name)) {                        
-                        $request_imported_qty = !empty($request->n_l_machinery_imported_qty) ? $request->n_l_machinery_imported_qty : $request->l_machinery_imported_qty;
-                        if ($request_imported_qty < $machineryImportedMaster->total_imported) {
-                            return response()->json([
-                                'error' => true,
-                                'status' => 'Bida Reg Amendment machinery quantity cannot be less than the already imported machinery quantity!',
-                            ]);
+            $processInfo = ProcessList::where('tracking_no', $ref_app_tracking_no)
+                ->where('status_id', 25)
+                ->first();
+            
+            if (!empty($processInfo)) {
+                $ref_app_id_column = $processInfo->process_type_id == 102 ? 'br_app_id' : 'bra_app_id';
+                $process_type_id_column = $processInfo->process_type_id == 102 ? 'br_process_type_id' : 'bra_process_type_id';
+                
+                $listOfMachineryImportedMaster = MasterMachineryImported::where("$ref_app_id_column", $processInfo->ref_id)
+                    ->where("$process_type_id_column", $processInfo->process_type_id)
+                    ->whereNotIn('amendment_type', ['delete', 'remove'])
+                    ->where('total_imported', '>', 0)
+                    ->where('status', 1)
+                    ->select('name', 'total_imported')
+                    ->get();
+    
+                if(count($listOfMachineryImportedMaster) > 0 && !empty($request->l_machinery_imported_qty) || !empty($request->n_l_machinery_imported_qty)) {
+                    foreach ($listOfMachineryImportedMaster as $machineryImportedMaster) {
+                        if (MasterMachineryImported::processName($machineryImportedMaster->name) == MasterMachineryImported::processName($listOfMachineryImported->l_machinery_imported_name)) {                        
+                            $request_imported_qty = !empty($request->n_l_machinery_imported_qty) ? $request->n_l_machinery_imported_qty : $request->l_machinery_imported_qty;
+                            if ($request_imported_qty < $machineryImportedMaster->total_imported) {
+                                return response()->json([
+                                    'error' => true,
+                                    'status' => 'Bida Reg Amendment machinery quantity cannot be less than the already imported machinery quantity!',
+                                ]);
+                            }
+                            if ($request->amendment_type == 'remove' && $machineryImportedMaster->total_imported > 0) {
+                                return response()->json([
+                                    'error' => true,
+                                    'status' => 'Bida Reg Amendment machinery cannot be removed that already imported!',
+                                ]);
+                            }
                         }
                     }
                 }
@@ -787,25 +829,36 @@ class AppSubDetailsController extends Controller
         
         $delete_machinery = ListOfMachineryImportedAmendment::where(['id' => $decoded_id, 'process_type_id' => $this->process_type_id])->first();
         
-        $ref_app_tracking_no = BidaRegistrationAmendment::where('id', $delete_machinery->app_id)->value('ref_app_tracking_no');
-
-        $listOfMachineryImportedMaster = MasterMachineryImported::where('ref_app_tracking_no', $ref_app_tracking_no)
-            ->whereNotIn('amendment_type', ['delete', 'remove'])
-            ->where('total_imported', '>', 0)
-            ->select('name')
-            ->get();
-
-        if(count($listOfMachineryImportedMaster) > 0) {
-            foreach ($listOfMachineryImportedMaster as $machineryImportedMaster) {
-                if (MasterMachineryImported::processName($machineryImportedMaster->name) == MasterMachineryImported::processName($delete_machinery->l_machinery_imported_name)) {
-                    return response()->json([
-                        'responseCode' => 0,
-                        'msg' => 'Already imported machinery cannot be deleted.',
-                    ]);
+        $bra_apps_ref_tracking_no = BidaRegistrationAmendment::where('id', $delete_machinery->app_id)->value('ref_app_tracking_no');
+        
+        $processInfo = ProcessList::where('tracking_no', $bra_apps_ref_tracking_no)
+            ->where('status_id', 25)
+            ->first();
+        
+        if (!empty($processInfo)) {
+            $ref_app_id_column = $processInfo->process_type_id == 102 ? 'br_app_id' : 'bra_app_id';
+            $process_type_id_column = $processInfo->process_type_id == 102 ? 'br_process_type_id' : 'bra_process_type_id';
+            
+            $listOfMachineryImportedMaster = MasterMachineryImported::where("$ref_app_id_column", $processInfo->ref_id)
+                ->where("$process_type_id_column", $processInfo->process_type_id)
+                ->whereNotIn('amendment_type', ['delete', 'remove'])
+                ->where('total_imported', '>', 0)
+                ->where('status', 1)
+                ->select('name', 'total_imported')
+                ->get();
+    
+            if(count($listOfMachineryImportedMaster) > 0) {
+                foreach ($listOfMachineryImportedMaster as $machineryImportedMaster) {
+                    if (MasterMachineryImported::processName($machineryImportedMaster->name) == MasterMachineryImported::processName($delete_machinery->l_machinery_imported_name)) {
+                        return response()->json([
+                            'responseCode' => 0,
+                            'msg' => 'Already imported machinery cannot be deleted.',
+                        ]);
+                    }
                 }
             }
+            
         }
-        
 
         // Update ListOfMachineryImportedAmendment data
         ListOfMachineryImportedAmendment::where(['id' => $decoded_id, 'process_type_id' => $this->process_type_id])->update([
@@ -827,12 +880,21 @@ class AppSubDetailsController extends Controller
         $delete_machinery = ListOfMachineryImportedAmendment::whereIn('id', $decodedIds)->where('process_type_id', $this->process_type_id)->get();
 
         foreach($delete_machinery as $machinery){
-            $ref_app_tracking_no = BidaRegistrationAmendment::where('id', $machinery->app_id)->value('ref_app_tracking_no');
-
-            $listOfMachineryImportedMaster = MasterMachineryImported::where('ref_app_tracking_no', $ref_app_tracking_no)
+            $bra_apps_ref_tracking_no = BidaRegistrationAmendment::where('id', $machinery->app_id)->value('ref_app_tracking_no');
+            
+            $processInfo = ProcessList::where('tracking_no', $bra_apps_ref_tracking_no)
+                ->where('status_id', 25)
+                ->first();
+            
+            $ref_app_id_column = $processInfo->process_type_id == 102 ? 'br_app_id' : 'bra_app_id';
+            $process_type_id_column = $processInfo->process_type_id == 102 ? 'br_process_type_id' : 'bra_process_type_id';
+            
+            $listOfMachineryImportedMaster = MasterMachineryImported::where("$ref_app_id_column", $processInfo->ref_id)
+                ->where("$process_type_id_column", $processInfo->process_type_id)
                 ->whereNotIn('amendment_type', ['delete', 'remove'])
                 ->where('total_imported', '>', 0)
-                ->select('name')
+                ->where('status', 1)
+                ->select('name', 'total_imported')
                 ->get();
 
             if(count($listOfMachineryImportedMaster) > 0) {

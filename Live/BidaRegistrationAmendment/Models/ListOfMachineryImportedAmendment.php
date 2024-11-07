@@ -9,6 +9,7 @@ class ListOfMachineryImportedAmendment extends Model {
     protected $table = 'list_of_machinery_imported_amendment';
     protected $fillable = [
         'id',
+        'ref_master_id',
         'app_id',
         'process_type_id',
         'l_machinery_imported_name',

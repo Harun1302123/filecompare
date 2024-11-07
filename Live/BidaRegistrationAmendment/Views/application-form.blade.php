@@ -2411,7 +2411,7 @@ if (!ACL::isAllowed($accessMode, '-A-')) {
                                                     </label>
                                                 </td>
 
-                                                <td>multiToggleCheck4. Sales (in 100%)
+                                                <td>
                                                     <label class="checkbox-inline">
                                                         <input type="checkbox" class="myCheckBox cusReadonly" name="public_drainage" @if(Session::get('brInfo.public_drainage') == 1) checked="checked" @endif>Drainage
                                                     </label>

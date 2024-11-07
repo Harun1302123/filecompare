@@ -1541,7 +1541,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <tr>
                                                 <td>
                                                     <span>
-                                                        {!! Form::checkbox("multiToggleCheck[n_local_sales]", 1, (empty($appInfo->n_local_sales) ? false : true), ['class' => 'field', 'id' => 'n_foreign_sales_check', 'onclick' => "toggleCheckBox('n_foreign_sales_check', ['n_local_sales', 'n_foreign_sales']);"]) !!}
+                                                        {!! Form::checkbox("multiToggleCheck[n_local_sales]", 1, (is_null($appInfo->n_local_sales) ? false : true), ['class' => 'field', 'id' => 'n_foreign_sales_check', 'onclick' => "toggleCheckBox('n_foreign_sales_check', ['n_local_sales',  'n_deemed_export', 'n_direct_export']);"]) !!}
                                                     </span>
                                                 </td>
                                                 <td width="30%">Field name</td>
@@ -1559,12 +1559,12 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 </td>
                                                 <td class="light-green">
                                                     <div class="form-group">
-                                                        {!! Form::text('n_local_sales', $appInfo->n_local_sales,['class'=>'form-control input-md', 'id' => 'n_local_sales', (empty($appInfo->n_local_sales) ? 'disabled' : '')]) !!}
+                                                        {!! Form::text('n_local_sales', $appInfo->n_local_sales,['class'=>'form-control input-md', 'id' => 'n_local_sales', (is_null($appInfo->n_local_sales) ? 'disabled' : '')]) !!}
                                                     </div>
                                                     {!! $errors->first('n_local_sales','<span class="help-block">:message</span>') !!}
                                                 </td>
                                             </tr>
-                                            <tr>
+                                            {{-- <tr>
                                                 <td></td>
                                                 <td>Foreign</td>
                                                 <td class="light-yellow">
@@ -1573,9 +1573,37 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 </td>
                                                 <td class="light-green">
                                                     <div class="form-group">
-                                                        {!! Form::text('n_foreign_sales', $appInfo->n_foreign_sales,['class'=>'form-control input-md', 'id' => 'n_foreign_sales', (empty($appInfo->n_foreign_sales) ? 'disabled' : '')]) !!}
+                                                        {!! Form::text('n_foreign_sales', $appInfo->n_foreign_sales,['class'=>'form-control input-md', 'id' => 'n_foreign_sales', ($appInfo->local_sales > 20 && empty($appInfo->n_foreign_sales) ? 'disabled' : '')]) !!}
                                                     </div>
                                                     {!! $errors->first('n_foreign_sales','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                            </tr> --}}
+                                            <tr>
+                                                <td></td>
+                                                <td>Direct Export</td>
+                                                <td class="light-yellow">
+                                                    {!! Form::text('direct_export', $appInfo->direct_export,['class'=>'form-control input-md cusReadonly', 'id' => 'direct_export_per']) !!}
+                                                    {!! $errors->first('direct_export','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                                <td class="light-green">
+                                                    <div class="form-group">
+                                                        {!! Form::text('n_direct_export', $appInfo->n_direct_export,['class'=>'form-control input-md', 'id' => 'n_direct_export', (empty($appInfo->n_direct_export) ? 'disabled' : '')]) !!}
+                                                    </div>
+                                                    {!! $errors->first('n_direct_export','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td>Deemed Export</td>
+                                                <td class="light-yellow">
+                                                    {!! Form::text('deemed_export', $appInfo->deemed_export,['class'=>'form-control input-md cusReadonly', 'id' => 'deemed_export_per']) !!}
+                                                    {!! $errors->first('deemed_export','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                                <td class="light-green">
+                                                    <div class="form-group">
+                                                        {!! Form::text('n_deemed_export', $appInfo->n_deemed_export,['class'=>'form-control input-md', 'id' => 'n_deemed_export', (empty($appInfo->n_deemed_export) ? 'disabled' : '')]) !!}
+                                                    </div>
+                                                    {!! $errors->first('n_deemed_export','<span class="help-block">:message</span>') !!}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -3498,6 +3526,44 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                     //     return false;
                     // }
 
+                    // if($("#total_sales").val() != 100 || $("#n_total_sales").val() != 100) {
+                    //     swal({
+                    //         type: 'error',
+                    //         title: 'Oops...',
+                    //         text: 'Total Sales can not be more than or less than 100%'
+                    //     });
+                    //     return false;
+                    // }
+                    if($("#n_total_sales").val() != 100 && $('#n_foreign_sales_check').is(':checked')) {
+                        $("#n_local_sales").addClass('error');
+                        $("#n_direct_export").addClass('error');
+                        $("#n_deemed_export").addClass('error');
+                        $('html, body').scrollTop($("#total_sales").offset().top);
+                        $("#total_sales").focus();
+                        swal({
+                            type: 'error',
+                            title: 'Oops...',
+                            text: 'Proposed Total Sales can not be more than or less than 100%'
+                        });
+                        
+                        return false;
+                    } if($("#total_sales").val() != 100 ) {
+                        $("#deemed_export_per").addClass('error');
+                        $("#direct_export_per").addClass('error');
+                        $("#local_sales_per").addClass('error');
+                        $('html, body').scrollTop($("#n_total_sales").offset().top);
+                        $("#n_total_sales").focus();
+
+                        swal({
+                            type: 'error',
+                            title: 'Oops...',
+                            text: 'Existing Total Sales can not be more than or less than 100%'
+                        });
+                        
+                        return false;
+                    }
+                        
+
                 }
 
                 if(newIndex == 3) {
@@ -3714,60 +3780,366 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
         });
 
         //---------------- Sales (in 100%)
-        $("#local_sales_per").on('keyup', function () {
-            var local_sales_per = this.value;
-            if (local_sales_per <= 100 && local_sales_per >= 0) {
-                var cal = 100 - local_sales_per;
-                $('#foreign_sales_per').val(cal);
-                $("#total_sales").val(100);
-            } else {
-                alert("Please select a value between 0 & 100");
-                $('#local_sales_per').val(0);
-                $('#foreign_sales_per').val(0);
-                $("#total_sales").val(0);
-            }
-        });
+        // $("#local_sales_per").on('keyup', function () {
+        //     var local_sales_per = this.value;
+        //     if (local_sales_per <= 100 && local_sales_per >= 0) {
+        //         var cal = 100 - local_sales_per;
+        //         $('#foreign_sales_per').val(cal);
+        //         $("#total_sales").val(100);
+        //     } else {
+        //         alert("Please select a value between 0 & 100");
+        //         $('#local_sales_per').val(0);
+        //         $('#foreign_sales_per').val(0);
+        //         $("#total_sales").val(0);
+        //     }
+        // });
 
-        $("#foreign_sales_per").on('keyup', function () {
-            var foreign_sales_per = this.value;
-            if (foreign_sales_per <= 100 && foreign_sales_per >= 0) {
-                var cal = 100 - foreign_sales_per;
-                $('#local_sales_per').val(cal);
-                $("#total_sales").val(100);
-            } else {
-                alert("Please select a value between 0 & 100");
-                $('#local_sales_per').val(0);
-                $('#foreign_sales_per').val(0);
-                $("#total_sales").val(0);
-            }
-        });
+        // $("#local_sales_per").on('keyup', function () {
+        //     var local_sales_per = this.value;
+        //     if (local_sales_per <= 100 && local_sales_per >= 0) {
+        //         if(local_sales_per <=20){
+        //             $('#foreign_sales_per').attr('disabled', true);
+        //             $('#foreign_sales_per').val('');
+        //             $('#deemed_export_per').attr('disabled', false);
+        //             $('#direct_export_per').attr('disabled', false);
+        //             var deemed_export =  parseInt($('#deemed_export_per').val() ? $('#deemed_export_per').val() : 0);
+        //             var direct_export =  parseInt($('#direct_export_per').val() ? $('#direct_export_per').val() : 0);
+
+        //             var cal = parseInt(local_sales_per) + parseInt(deemed_export) + parseInt(direct_export);
+        //             console.log(cal);
+        //             $("#total_sales").val(cal);
+        //         }
+        //         else{
+        //             $('#foreign_sales_per').show();
+        //             $('#direct_export_per').attr('disabled', true);
+        //             $('#deemed_export_per').attr('disabled', true);
+        //             $('#deemed_export_per').val('');
+        //             $('#direct_export_per').val('');
+
+        //             var cal = 100 - local_sales_per;
+        //             $('#foreign_sales_per').val(cal);
+        //             $("#total_sales").val(100);
+        //         }
+                
+        //     } else {
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Please select a value between 0 & 100'
+        //         });
+        //         $('#local_sales_per').val(0);
+        //         $('#foreign_sales_per').val(0);
+        //         $("#total_sales").val(0);
+        //     }
+            
+        // });
+        // $("#direct_export_per").on('keyup', function () {
+        //     var direct_export_per = parseInt(this.value);
+        //     var local_sales_per =  parseInt($('#local_sales_per').val() ? $('#local_sales_per').val() : 0);
+        //     var deemed_export_per =  parseInt($('#deemed_export_per').val() ? $('#deemed_export_per').val() : 0);
+        //     if (direct_export_per <= 100 && direct_export_per >= 0) {
+        //         var cal = parseInt(local_sales_per) + parseInt(direct_export_per);
+        //         var total = 100-cal;
+        //         $('#deemed_export_per').val(total);
+        //         $("#total_sales").val(100);
+        //     } else {
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Please select a value between 0 & 100'
+        //         });
+        //         $('#local_sales_per').val(0);
+        //         $('#foreign_sales_per').val(0);
+        //         $('#direct_export_per').val(0);
+        //         $('#deemed_export_per').val(0);
+        //         $("#total_sales").val(0);
+        //     }
+        //     if($("#total_sales").val() >100){
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Total Sales can not be more than 100%'
+        //         });
+        //         $('#local_sales_per').val(0);
+        //         $('#foreign_sales_per').val(0);
+        //         $('#direct_export_per').val(0);
+        //         $('#deemed_export_per').val(0);
+        //         $("#total_sales").val(0);
+        //     }
+            
+        // });
+        // $("#deemed_export_per").on('keyup', function () {
+        //     var deemed_export_per = parseInt(this.value);
+        //     var local_sales_per =  parseInt($('#local_sales_per').val() ? $('#local_sales_per').val() : 0);
+        //     var direct_export_per =  parseInt($('#direct_export_per').val() ? $('#direct_export_per').val() : 0);
+        //     if (deemed_export_per <= 100 && deemed_export_per >= 0) {
+        //         var cal = parseInt(local_sales_per) + parseInt(deemed_export_per);
+        //         var total = 100-cal;
+        //         $('#direct_export_per').val(total);
+        //         $("#total_sales").val(100);
+        //     } else {
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Please select a value between 0 & 100'
+        //         });
+        //         $('#local_sales_per').val(0);
+        //         $('#foreign_sales_per').val(0);
+        //         $('#direct_export_per').val(0);
+        //         $('#deemed_export_per').val(0);
+        //         $("#total_sales").val(0);
+        //     }
+        //     if($("#total_sales").val() >100){
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Total Sales can not be more than 100%'
+        //         });
+        //         $('#local_sales_per').val(0);
+        //         $('#foreign_sales_per').val(0);
+        //         $('#direct_export_per').val(0);
+        //         $('#deemed_export_per').val(0);
+        //         $("#total_sales").val(0);
+        //     }
+        // });
+
+        // $("#foreign_sales_per").on('keyup', function () {
+        //     var foreign_sales_per = this.value;
+        //     if (foreign_sales_per <= 100 && foreign_sales_per >= 0) {
+        //         var cal = 100 - foreign_sales_per;
+        //         $('#local_sales_per').val(cal);
+        //         $("#total_sales").val(100);
+        //     } else {
+        //         alert("Please select a value between 0 & 100");
+        //         $('#local_sales_per').val(0);
+        //         $('#foreign_sales_per').val(0);
+        //         $("#total_sales").val(0);
+        //     }
+        // });
 
         // Sales 100% for propose information
-        $("#n_local_sales").on('keyup', function () {
-            var n_local_sales = this.value;
-            if (n_local_sales <= 100 && n_local_sales >= 0) {
-                var cal = 100 - n_local_sales;
-                $('#n_foreign_sales').val(cal);
-                $("#n_total_sales").val(100);
+        // $("#n_local_sales").on('keyup', function () {
+        //     var n_local_sales = this.value;
+        //     if (n_local_sales <= 100 && n_local_sales >= 0) {
+        //         var cal = 100 - n_local_sales;
+        //         $('#n_foreign_sales').val(cal);
+        //         $("#n_total_sales").val(100);
+        //     } else {
+        //         alert("Please select a value between 0 & 100");
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+        // });
+
+        
+        // $("#n_local_sales").on('keyup', function () {
+        //     var n_local_sales = this.value;
+        //     if (n_local_sales <= 100 && n_local_sales >= 0) {
+        //         if(n_local_sales <=20){
+        //             $('#n_foreign_sales').attr('disabled', true);
+        //             $('#n_foreign_sales').val('');
+        //             $('#n_deemed_export').attr('disabled', false);
+        //             $('#n_direct_export').attr('disabled', false);
+        //             var deemed_export =  parseInt($('#n_deemed_export').val() ? $('#n_deemed_export').val() : 0);
+        //             var direct_export =  parseInt($('#n_direct_export').val() ? $('#n_direct_export').val() : 0);
+
+        //             var cal = parseInt(n_local_sales) + parseInt(deemed_export) + parseInt(direct_export);
+        //             $("#n_total_sales").val(cal);
+        //         }
+        //         else{
+        //             $('#n_foreign_sales').show();
+        //             $('#n_direct_export').attr('disabled', true);
+        //             $('#n_deemed_export').attr('disabled', true);
+        //             $('#n_deemed_export').val('');
+        //             $('#n_direct_export').val('');
+
+        //             var cal = 100 - n_local_sales;
+        //             $('#n_foreign_sales').val(cal);
+        //             $("#n_total_sales").val(100);
+        //         }
+                
+        //     } else {
+        //         alert("Please select a value between 0 & 100");
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+        //     if($('#n_total_sales').val() > 100){
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Local Sales can not be more than 100%'
+        //         });
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $('#n_direct_export').val(0);
+        //         $('#n_deemed_export').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+            
+        // });
+
+        // $("#n_direct_export").on('keyup', function () {
+        //     var direct_export_per = parseInt(this.value);
+        //     var local_sales_per =  parseInt($('#n_local_sales').val() ? $('#n_local_sales').val() : 0);
+        //     var deemed_export_per =  parseInt($('#n_deemed_export').val() ? $('#n_deemed_export').val() : 0);
+        //     console.log(local_sales_per, deemed_export_per, direct_export_per);
+        //     if (direct_export_per <= 100 && direct_export_per >= 0) {
+        //         var cal = parseInt(local_sales_per) + parseInt(direct_export_per);
+        //         var total = 100-cal;
+        //         $('#n_deemed_export').val(total);
+        //         $("#n_total_sales").val(100);
+        //     } else {
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Please select a value between 0 & 100'
+        //         });
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $('#n_direct_export').val(0);
+        //         $('#n_deemed_export').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+        //     if($("#n_total_sales").val() >100){
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Total Sales can not be more than 100%'
+        //         });
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $('#n_direct_export').val(0);
+        //         $('#n_deemed_export').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+            
+        // });
+        // $("#n_deemed_export").on('keyup', function () {
+        //     var deemed_export_per = parseInt(this.value);
+        //     var local_sales_per =  parseInt($('#n_local_sales').val() ? $('#n_local_sales').val() : 0);
+        //     var direct_export_per =  parseInt($('#n_direct_export').val() ? $('#n_direct_export').val() : 0);
+        //     if (deemed_export_per <= 100 && deemed_export_per >= 0) {
+        //         var cal = parseInt(local_sales_per) + parseInt(deemed_export_per);
+        //         var total = 100-cal;
+        //         $('#n_direct_export').val(total);
+        //         $("#n_total_sales").val(100);
+        //     } else {
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Please select a value between 0 & 100'
+        //         });
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $('#n_direct_export').val(0);
+        //         $('#n_deemed_export').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+        //     if($("#n_total_sales").val() >100){
+        //         swal({
+        //             type: 'error',
+        //             title: 'Oops...',
+        //             text: 'Total Sales can not be more than 100%'
+        //         });
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $('#n_direct_export').val(0);
+        //         $('#n_deemed_export').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+        // });
+
+        // $("#n_foreign_sales").on('keyup', function () {
+        //     var n_foreign_sales = this.value;
+        //     if (n_foreign_sales <= 100 && n_foreign_sales >= 0) {
+        //         var cal = 100 - n_foreign_sales;
+        //         $('#n_local_sales').val(cal);
+        //         $("#n_total_sales").val(100);
+        //     } else {
+        //         alert("Please select a value between 0 & 100");
+        //         $('#n_local_sales').val(0);
+        //         $('#n_foreign_sales').val(0);
+        //         $("#n_total_sales").val(0);
+        //     }
+        // });
+
+        $("#n_local_sales, #n_direct_export, #n_deemed_export").on('input', function () {
+            $("#n_deemed_export").removeClass('error');
+            $("#n_direct_export").removeClass('error');
+            $("#n_local_sales").removeClass('error');
+            var n_deemed_export =  $('#n_deemed_export').val() ? $('#n_deemed_export').val() : 0;
+            var n_direct_export =  $('#n_direct_export').val() ? $('#n_direct_export').val() : 0;
+            // var n_foreign_sales_per =  $('#n_foreign_sales').val() ? $('#n_foreign_sales').val() : 0;
+            var n_local_sales_per =  $('#n_local_sales').val() ? $('#n_local_sales').val() : 0;
+
+            if (n_local_sales_per <= 100 && n_local_sales_per >= 0) {
+                var cal = parseInt(n_local_sales_per) + parseInt(n_direct_export) + parseInt(n_deemed_export);
+                let total = cal.toFixed(2);
+                $("#n_total_sales").val(total);
+                
             } else {
-                alert("Please select a value between 0 & 100");
+                swal({
+                    type: 'error',
+                    title: 'Oops...',
+                    text: 'Total Sales can not be more than 100% and less than 0%'
+                });
                 $('#n_local_sales').val(0);
-                $('#n_foreign_sales').val(0);
+                // $('#n_foreign_sales').val(0);
+                $("#n_total_sales").val(0);
+                $('#n_deemed_export').val(0);
+                $('#n_direct_export').val(0);
+            }
+            if($('#n_total_sales').val() > 100){
+                swal({
+                    type: 'error',
+                    title: 'Oops...',
+                    text: 'Total Sales can not be more than 100%'
+                });
+                $('#n_local_sales').val(0);
+                // $('#n_foreign_sales').val(0);
+                $('#n_direct_export').val(0);
+                $('#n_deemed_export').val(0);
                 $("#n_total_sales").val(0);
             }
+            
         });
 
-        $("#n_foreign_sales").on('keyup', function () {
-            var n_foreign_sales = this.value;
-            if (n_foreign_sales <= 100 && n_foreign_sales >= 0) {
-                var cal = 100 - n_foreign_sales;
-                $('#n_local_sales').val(cal);
-                $("#n_total_sales").val(100);
+        $("#local_sales_per, #direct_export_per, #deemed_export_per").on('input', function () {
+            $("#deemed_export_per").removeClass('error');
+            $("#direct_export_per").removeClass('error');
+            $("#local_sales_per").removeClass('error');
+            var deemed_export =  $('#deemed_export_per').val() ? $('#deemed_export_per').val() : 0;
+            var direct_export =  $('#direct_export_per').val() ? $('#direct_export_per').val() : 0;
+            // var foreign_sales_per =  $('#foreign_sales_per').val() ? $('#foreign_sales_per').val() : 0;
+            var local_sales_per =  $('#local_sales_per').val() ? $('#local_sales_per').val() : 0;
+
+
+            if (local_sales_per <= 100 && local_sales_per >= 0) {
+                var cal = parseInt(local_sales_per) + parseInt(deemed_export) + parseInt(direct_export);
+                let total = cal.toFixed(2);
+                $("#total_sales").val(total);
+                
             } else {
                 alert("Please select a value between 0 & 100");
-                $('#n_local_sales').val(0);
-                $('#n_foreign_sales').val(0);
-                $("#n_total_sales").val(0);
+                $('#local_sales_per').val(0);
+                // $('#foreign_sales_per').val(0);
+                $('#deemed_export_per').val(0);
+                $('#direct_export_per').val(0);
+                $("#total_sales").val(0);
+            }
+            if($("#total_sales").val() >100){
+                swal({
+                    type: 'error',
+                    title: 'Oops...',
+                    text: 'Total Sales can not be more than 100%'
+                });
+                $('#local_sales_per').val(0);
+                // $('#foreign_sales_per').val(0);
+                $('#deemed_export_per').val(0);
+                $('#direct_export_per').val(0);
+                $("#total_sales").val(0);
             }
         });
         //--------------end sales
@@ -3852,6 +4224,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
         //$('input[name=is_approval_online]:checked').trigger('click');
         $('#ceo_country_id').trigger('change');
         $('#n_ceo_country_id').trigger('change');
+
+        $("#local_sales_per").trigger('input');
+        $("#n_local_sales").trigger('input');
 
         //trigger business class code function when document ready
         $("#business_class_code").keyup();
@@ -4089,6 +4464,14 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
 
                 // trigger on category wise doc load
                 CategoryWiseDocLoad($('#organization_status_id').val());
+
+                if(boxId == 'n_foreign_sales_check'){
+                    $('#n_direct_export').val('');
+                    $('#n_deemed_export').val('');
+                    $('#n_direct_export').attr('disabled', true);
+                    $('#n_deemed_export').attr('disabled', true);
+                    $('#n_total_sales').val('');
+                }
 
                 if (val == 'n_male' || val == 'n_female'){
                     $("#" + val).attr("disabled", true);
