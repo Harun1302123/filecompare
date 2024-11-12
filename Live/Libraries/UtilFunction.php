@@ -89,6 +89,16 @@ class UtilFunction
 
         $BRCommonPoolDataCount = BRCommonPool::where($tracking_column, $ref_app_tracking_no)->count();
 
+        if ($BRCommonPoolDataCount < 1) {
+            $histQry = DB::table('br_common_pool_hist')->where($tracking_column, $ref_app_tracking_no);
+            $BRCommonPoolDataCount = $histQry->count();
+            if($BRCommonPoolDataCount > 0){
+                $BRCommonPoolDataHist= $histQry->first();
+                $brCommonPool = BRCommonPool::where('br_tracking_no', $BRCommonPoolDataHist->br_tracking_no)->first();
+                $ref_app_tracking_no = $brCommonPool ? $brCommonPool->bra_tracking_no : $ref_app_tracking_no;
+            }
+        }
+
         if ($tracking_column == 'br_tracking_no' && $BRCommonPoolDataCount < 1) {
             BRCommonPoolManager::BRDataStore($ref_app_tracking_no, $ref_id);
         } elseif ($tracking_column == 'bra_tracking_no' && $BRCommonPoolDataCount < 1) {
@@ -1130,9 +1140,6 @@ class UtilFunction
         }
         return $string;
     }
-
-
-    // $GLOBALS['unusualSpacesHexCode'] = ['a0', '202f'];
 
     public static function cleanAndCompareNames($input, $api) 
     {

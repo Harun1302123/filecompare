@@ -1,0 +1,4 @@
+<?php
+ /**
+ *	Signup Helper  
+ */
