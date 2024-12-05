@@ -281,7 +281,7 @@ class IrcRecommendationNewController extends Controller
                     ->where('status_id', 25)
                     ->where('company_id', $working_company_id)
                     ->whereIn('process_type_id', [102,12])
-                    ->first(['ref_id', 'tracking_no', 'approval_center_id']);
+                    ->first(['ref_id', 'tracking_no', 'approval_center_id', 'process_type_id']);
                 if (empty($getBrApprovedData)) {
                     Session::flash('error', 'Sorry! BIDA Registration not found by this tracking number! [IRC-111]');
                     return redirect()->back();
@@ -302,7 +302,7 @@ class IrcRecommendationNewController extends Controller
                 Session::put('brInfo.approval_center_id', $getBrApprovedData->approval_center_id);
 
                 //  Load BRA information
-                if (!empty($getBRinfo->br_tracking_no) && !empty($getBRinfo->bra_tracking_no)) {
+                if ($getBrApprovedData->process_type_id == 12 && !empty($getBRinfo->bra_tracking_no)) {
                     $this->BRAChildTableDataLoad($getBRinfo->bra_tracking_no);
                     Session::put('ref_app_approve_date',$getBRinfo->bra_approved_date);
                 } else {
@@ -2855,12 +2855,12 @@ class IrcRecommendationNewController extends Controller
 
         $getAnnualProductionCapacity = DB::table('annual_production_capacity_amendment')
             ->select(DB::raw('
-                            ifnull(n_product_name, product_name) as product_name, 
-                            ifnull(n_quantity_unit, quantity_unit) as quantity_unit,
-                            ifnull(n_quantity, quantity) as quantity, 
-                            ifnull(n_price_usd, price_usd) as price_usd, 
-                            ifnull(n_price_taka, price_taka) as price_taka
-                        '))
+                COALESCE(NULLIF(n_product_name, ""), product_name) as product_name,
+                COALESCE(NULLIF(n_quantity_unit, ""), quantity_unit) as quantity_unit,
+                COALESCE(NULLIF(n_quantity, ""), quantity) as quantity,
+                COALESCE(NULLIF(n_price_usd, ""), price_usd) as price_usd,
+                COALESCE(NULLIF(n_price_taka, ""), price_taka) as price_taka
+            '))
             ->where(['app_id' => $bra_ref_no, 'process_type_id' => 12, 'status' => 1, 'is_archive' => 0])
             ->get();
 

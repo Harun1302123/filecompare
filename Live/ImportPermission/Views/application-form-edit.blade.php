@@ -1779,9 +1779,9 @@ if (!ACL::isAllowed($accessMode, $mode)) {
                                                                         </td>
                                                                         <td>
                                                                             {{-- {!! Form::text("remaining_qty_show[$inc]", $eachlistOfMachineryImportedSpare->remaining_quantity - $eachlistOfMachineryImportedSpare->required_quantity, ['class' => 'form-control input-md required remaining_qty_calculation', 'readonly']) !!} --}}
-                                                                            {!! Form::text("remaining_qty_show[$inc]", $eachlistOfMachineryImportedSpare->required_quantity != '' ? $eachlistOfMachineryImportedSpare->remaining_quantity - $eachlistOfMachineryImportedSpare->required_quantity : $eachlistOfMachineryImportedSpare->remaining_quantity, ['class' => 'form-control input-md required remaining_qty_calculation', 'readonly']) !!}
+                                                                            {!! Form::text("remaining_qty_show[$inc]", $eachlistOfMachineryImportedSpare->remaining_quantity, ['class' => 'form-control input-md required remaining_qty_calculation', 'readonly']) !!}
 
-                                                                            {!! Form::hidden("remaining_quantity[$inc]", $eachlistOfMachineryImportedSpare->remaining_quantity, ['class' => 'form-control input-md required', 'readonly']) !!}
+                                                                            {!! Form::hidden("remaining_quantity[$inc]", $eachlistOfMachineryImportedSpare->remaining_quantity + $eachlistOfMachineryImportedSpare->required_quantity, ['class' => 'form-control input-md required', 'readonly']) !!}
                                                                         </td>
                                                                         
                                                                         <td>
@@ -2513,25 +2513,25 @@ if (!ACL::isAllowed($accessMode, $mode)) {
                     }
 
                     // annual production check
-                    var irc_purpose = $('#irc_purpose').val();
-                    if(irc_purpose != 2){
-                        var is_list_of_apc = 0;
-                        var _token = $('input[name="_token"]').val();
-                        var application_id = '{{ Encryption::encodeId($appInfo->ref_id) }}';
-                        $.ajax({
-                            type: "GET",
-                            url: "<?php echo url(); ?>/import-permission/list-of-annual-production",
-                            async: false,
-                            data: {
-                                _token: _token,
-                                application_id: application_id
-                            },
-                            success: function (response) {
-                                is_list_of_apc = response.total_list_of_apc;
-                                // console.log(is_list_of_apc);
-                            }
-                        });
-                    }
+                    // var irc_purpose = $('#irc_purpose').val();
+                    // if(irc_purpose != 2){
+                    //     var is_list_of_apc = 0;
+                    //     var _token = $('input[name="_token"]').val();
+                    //     var application_id = '{{ Encryption::encodeId($appInfo->ref_id) }}';
+                    //     $.ajax({
+                    //         type: "GET",
+                    //         url: "<?php echo url(); ?>/import-permission/list-of-annual-production",
+                    //         async: false,
+                    //         data: {
+                    //             _token: _token,
+                    //             application_id: application_id
+                    //         },
+                    //         success: function (response) {
+                    //             is_list_of_apc = response.total_list_of_apc;
+                    //             // console.log(is_list_of_apc);
+                    //         }
+                    //     });
+                    // }
                 }
 
                 if (newIndex == 4) { 

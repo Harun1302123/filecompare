@@ -94,11 +94,11 @@ class UtilFunction
             $BRCommonPoolDataCount = $histQry->count();
             if($BRCommonPoolDataCount > 0){
                 $BRCommonPoolDataHist= $histQry->first();
-                $brCommonPool = BRCommonPool::where('br_tracking_no', $BRCommonPoolDataHist->br_tracking_no)->first();
+                // $brCommonPool = BRCommonPool::where('br_tracking_no', $BRCommonPoolDataHist->br_tracking_no)->first();
+                $brCommonPool = BRCommonPool::where('id', $BRCommonPoolDataHist->br_common_pool_id)->first();
                 $ref_app_tracking_no = $brCommonPool ? $brCommonPool->bra_tracking_no : $ref_app_tracking_no;
             }
         }
-
         if ($tracking_column == 'br_tracking_no' && $BRCommonPoolDataCount < 1) {
             BRCommonPoolManager::BRDataStore($ref_app_tracking_no, $ref_id);
         } elseif ($tracking_column == 'bra_tracking_no' && $BRCommonPoolDataCount < 1) {
@@ -985,27 +985,27 @@ class UtilFunction
     public static function getIrmsFeedbackInitiateList($companyId)
     {
         return ProcessList::leftJoin('br_apps', 'br_apps.id', '=', 'process_list.ref_id')
-            ->leftJoin('client_irms_request_response as irr', 'irr.id', '=', 'br_apps.irms_req_res_id')
-            ->select(
-                'process_list.company_id',
-                'process_list.tracking_no',
-                'process_list.json_object',
-                'process_list.ref_id',
-                'br_apps.irms_request_initiate',
-                'irr.feedback_deadline',
-                'irr.remarks',
-                'irr.status_id as irms_status_id'
-            )
-            ->where([
-                'process_list.process_type_id' => 102, // BIDA Registration
-                'process_list.status_id' => 25,
-                'process_list.company_id' => $companyId,
-                'br_apps.irms_request_initiate' => 1,
-            ])
+                    ->leftJoin('client_irms_request_response as irr', 'irr.id', '=', 'br_apps.irms_req_res_id')
+                    ->select(
+                        'process_list.company_id',
+                        'process_list.tracking_no',
+                        'process_list.json_object',
+                        'process_list.ref_id',
+                        'br_apps.irms_request_initiate',
+                        'irr.feedback_deadline',
+                        'irr.remarks',
+                        'irr.status_id as irms_status_id'
+                    )
+                    ->where([
+                        'process_list.process_type_id' => 102, // BIDA Registration
+                        'process_list.status_id' => 25,
+                        'process_list.company_id' => $companyId,
+                        'br_apps.irms_request_initiate' => 1,
+                    ])
             ->whereIn('irr.status_id', [0, -1, 1, 5])// 0=Pending, -1=save as draft, 1 = submit, 5=shortfall
             ->get();
     }
-
+	
     public static function storeApiErrorInfo($api_name, $api_url, $request, $response)
     {
         $api_error_info = new ApiErrorInfo();

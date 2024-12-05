@@ -290,7 +290,7 @@ class IrcRecommendationThirdAdhocController extends Controller
                     ->where('process_list.status_id', 25)
                     ->where('process_list.company_id', $working_company_id)
                     ->whereIn('process_list.process_type_id', [102,12])
-                    ->first(['process_list.ref_id','process_list.tracking_no', 'process_list.approval_center_id']);
+                    ->first(['process_list.ref_id','process_list.tracking_no', 'process_list.approval_center_id', 'process_list.process_type_id']);
                 if (empty($getBRapprovedData)) {
                     Session::flash('error', 'Sorry! BIDA Registration not found by tracking no! [IRC-3-111]');
                     return redirect()->back();
@@ -312,7 +312,7 @@ class IrcRecommendationThirdAdhocController extends Controller
                 Session::put('br_certificate_link', $getBRinfo->certificate_link);
 
                 // Load BRA information
-                if (!empty($getBRinfo->br_tracking_no) && !empty($getBRinfo->bra_tracking_no)) {
+                if ($getBRapprovedData->process_type_id == 12 && !empty($getBRinfo->bra_tracking_no)) {
                     Session::put('br_ref_app_approve_date', $getBRinfo->bra_approved_date);
                     $bra_ref_no = ProcessList::where('tracking_no', $getBRinfo->bra_tracking_no)
                         ->where('process_type_id', 12)
@@ -320,12 +320,13 @@ class IrcRecommendationThirdAdhocController extends Controller
                         ->value('ref_id');
                     $BRAnnualProductionCapacity = DB::table('annual_production_capacity_amendment')
                         ->select(DB::raw('
-                                                ifnull(n_product_name, product_name) as product_name, 
-                                                ifnull(n_quantity_unit, quantity_unit) as quantity_unit,
-                                                ifnull(n_quantity, quantity) as quantity, 
-                                                ifnull(n_price_usd, price_usd) as price_usd, 
-                                                ifnull(n_price_taka, price_taka) as price_taka
-                                            '))
+                            COALESCE(NULLIF(n_product_name, ""), product_name) as product_name,
+                            COALESCE(NULLIF(n_quantity_unit, ""), quantity_unit) as quantity_unit,
+                            COALESCE(NULLIF(n_quantity, ""), quantity) as quantity,
+                            COALESCE(NULLIF(n_price_usd, ""), price_usd) as price_usd,
+                            COALESCE(NULLIF(n_price_taka, ""), price_taka) as price_taka
+
+                        '))
                         ->where(['app_id' => $bra_ref_no, 'process_type_id' => 12, 'status' => 1, 'is_archive' => 0])
                         ->get();
 

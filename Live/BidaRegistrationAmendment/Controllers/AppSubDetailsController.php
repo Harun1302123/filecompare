@@ -131,6 +131,7 @@ class AppSubDetailsController extends Controller
 
         $app_id = Encryption::decodeId($request->app_id);
         $process_type_id = Encryption::decodeId($request->encoded_process_type);
+        $nid_tin_passport = 0;
 
         if ($request->btn_save == 'NID') {
             $nid_tin_passport = $request->user_nid;
@@ -372,7 +373,7 @@ class AppSubDetailsController extends Controller
 
             $director_by_id->n_l_director_name = !empty($request->get('n_l_director_name')) ? $request->get('n_l_director_name') : null;
             $director_by_id->n_date_of_birth = (!empty($request->get('n_date_of_birth')) ? date('Y-m-d', strtotime($request->get('n_date_of_birth'))) : null);
-            $director_by_id->n_gender = !empty($request->get('n_gender')) ? $request->get('gender') : null;
+            $director_by_id->n_gender = !empty($request->get('n_gender')) ? $request->get('n_gender') : null;
             $director_by_id->n_l_director_designation = !empty($request->get('n_l_director_designation')) ? $request->get('n_l_director_designation') : null;
             $director_by_id->n_l_director_nationality = !empty($request->get('n_l_director_nationality')) ? $request->get('n_l_director_nationality') : null;
             $director_by_id->n_passport_type = !empty($request->get('n_passport_type')) ? $request->get('n_passport_type') : null;
@@ -885,25 +886,26 @@ class AppSubDetailsController extends Controller
             $processInfo = ProcessList::where('tracking_no', $bra_apps_ref_tracking_no)
                 ->where('status_id', 25)
                 ->first();
-            
-            $ref_app_id_column = $processInfo->process_type_id == 102 ? 'br_app_id' : 'bra_app_id';
-            $process_type_id_column = $processInfo->process_type_id == 102 ? 'br_process_type_id' : 'bra_process_type_id';
-            
-            $listOfMachineryImportedMaster = MasterMachineryImported::where("$ref_app_id_column", $processInfo->ref_id)
-                ->where("$process_type_id_column", $processInfo->process_type_id)
-                ->whereNotIn('amendment_type', ['delete', 'remove'])
-                ->where('total_imported', '>', 0)
-                ->where('status', 1)
-                ->select('name', 'total_imported')
-                ->get();
+            if (!empty($processInfo)) {
+                $ref_app_id_column = $processInfo->process_type_id == 102 ? 'br_app_id' : 'bra_app_id';
+                $process_type_id_column = $processInfo->process_type_id == 102 ? 'br_process_type_id' : 'bra_process_type_id';
+                
+                $listOfMachineryImportedMaster = MasterMachineryImported::where("$ref_app_id_column", $processInfo->ref_id)
+                    ->where("$process_type_id_column", $processInfo->process_type_id)
+                    ->whereNotIn('amendment_type', ['delete', 'remove'])
+                    ->where('total_imported', '>', 0)
+                    ->where('status', 1)
+                    ->select('name', 'total_imported')
+                    ->get();
 
-            if(count($listOfMachineryImportedMaster) > 0) {
-                foreach ($listOfMachineryImportedMaster as $machineryImportedMaster) {
-                    if (MasterMachineryImported::processName($machineryImportedMaster->name) == MasterMachineryImported::processName($machinery->l_machinery_imported_name)) {
-                        return response()->json([
-                            'responseCode' => 0,
-                            'msg' => 'Already imported machinery cannot be deleted.',
-                        ]);
+                if(count($listOfMachineryImportedMaster) > 0) {
+                    foreach ($listOfMachineryImportedMaster as $machineryImportedMaster) {
+                        if (MasterMachineryImported::processName($machineryImportedMaster->name) == MasterMachineryImported::processName($machinery->l_machinery_imported_name)) {
+                            return response()->json([
+                                'responseCode' => 0,
+                                'msg' => 'Already imported machinery cannot be deleted.',
+                            ]);
+                        }
                     }
                 }
             }
@@ -1238,7 +1240,7 @@ class AppSubDetailsController extends Controller
         return $localMachineryData;
     }
 
-    function countDirector(Request $request)
+    public function countDirector(Request $request)
     {
         if (!$request->ajax()) {
             return 'Sorry! this is a request without proper way. [ASDC-10102]';
