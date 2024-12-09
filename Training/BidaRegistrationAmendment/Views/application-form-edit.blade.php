@@ -274,9 +274,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                     <div class="col-lg-12">
                                                         {!! Form::label('ref_app_approve_date', 'Approved Date', ['class' => 'col-md-6 text-left required-star', 'style' => 'padding: 0px;']) !!}
                                                         <div class="col-md-6">
-                                                            <div class="input-group date" data-date-format="dd-mm-yyyy">
-                                                                {!! Form::text('ref_app_approve_date', (!empty($appInfo->ref_app_approve_date)) ? date('d-M-Y',strtotime($appInfo->ref_app_approve_date)) : '', ['class'=>'form-control input-md datepicker cusReadonly', 'id' => 'ref_app_approve_date', 'placeholder'=>'Pick from datepicker']) !!}
-                                                            </div>
+
+                                                                {!! Form::text('ref_app_approve_date', (!empty($appInfo->ref_app_approve_date)) ? date('d-M-Y',strtotime($appInfo->ref_app_approve_date)) : '', ['class'=>'form-control input-md', 'id' => 'ref_app_approve_date', 'readonly']) !!}
+
                                                         </div>
                                                     </div>
                                                 </div>
@@ -417,28 +417,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                             <div class="panel panel-info">
                                 <div class="panel-heading "><strong>A. Company Information</strong></div>
                                 <div class="panel-body">
-                                    {{-- <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="col-md-3">
-                                                    <span class="v_label">Name of organization/ company </span>
-                                                    <span class="pull-right">&#58;</span>
-                                                </div>
-                                                <div class="col-md-9">{{ CommonFunction::getCompanyNameById(Auth::user()->company_ids) }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="col-md-3">
-                                                    <span class="v_label">Name of organization/ company (বাংলা)</span>
-                                                    <span class="pull-right">&#58;</span>
-                                                </div>
-                                                <div class="col-md-9">{{ CommonFunction::getCompanyBnNameById(Auth::user()->company_ids) }}</div>
-                                            </div>
-                                        </div>
-                                    </div> --}}
+                                    
                                     <div class="clearfix padding"></div>
                                     <table class="table table-responsive table-bordered">
                                         <thead>
@@ -450,10 +429,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <td>Name of organization/ company</td>
+                                            <td class="required-star">Name of organization/ company</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::text('company_name', $appInfo->company_name, ['class'=>'form-control input-md cusReadonly', 'id'=>"company_name"]) !!}
+                                                {!! Form::text('company_name', $appInfo->company_name, ['class'=>'form-control input-md cusReadonly required', 'id'=>"company_name"]) !!}
                                                 {!! $errors->first('company_name','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -469,10 +448,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Name of organization/ company (বাংলা)</td>
+                                            <td class="required-star">Name of organization/ company (বাংলা)</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::text('company_name_bn', $appInfo->company_name_bn, ['class'=>'form-control input-md cusReadonly', 'id'=>"company_name_bn"]) !!}
+                                                {!! Form::text('company_name_bn', $appInfo->company_name_bn, ['class'=>'form-control input-md cusReadonly required', 'id'=>"company_name_bn"]) !!}
                                                 {!! $errors->first('company_name_bn','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -488,10 +467,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Name of the project</td>
+                                            <td class="required-star">Name of the project</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::text('project_name', $appInfo->project_name, ['class'=>'form-control input-md cusReadonly', 'id'=>"project_name"]) !!}
+                                                {!! Form::text('project_name', $appInfo->project_name, ['class'=>'form-control input-md cusReadonly required', 'id'=>"project_name"]) !!}
                                                 {!! $errors->first('project_name','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -507,10 +486,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td><label>Type of the organization</label></td>
+                                            <td><label class="required-star" >Type of the organization</label></td>
 
                                             <td class="light-yellow">
-                                                {!! Form::select('organization_type_id', $eaOrganizationType, $appInfo->organization_type_id, ['class' => 'form-control cusReadonly input-md ', 'id'=>'organization_type_id']) !!}
+                                                {!! Form::select('organization_type_id', $eaOrganizationType, $appInfo->organization_type_id, ['class' => 'form-control required cusReadonly input-md ', 'id'=>'organization_type_id']) !!}
                                                 {!! $errors->first('organization_type_id','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -545,17 +524,19 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td><label>Ownership status</label></td>
+                                            <td><label class="required-star">Ownership status</label></td>
 
                                             <td class="light-yellow">
-                                                {!! Form::select('ownership_status_id', $eaOwnershipStatus, $appInfo->ownership_status_id, ['class' => 'form-control cusReadonly input-md ', 'id'=>'ownership_status_id', 'onchange' => 'CategoryWiseDocLoad(this.value, "existing", "off")']) !!}
+                                                {!! Form::select('ownership_status_id', $eaOwnershipStatus, $appInfo->ownership_status_id, ['class' => 'form-control cusReadonly input-md required', 'id'=>'ownership_status_id']) !!}
+                                                {{-- {!! Form::select('ownership_status_id', $eaOwnershipStatus, $appInfo->ownership_status_id, ['class' => 'form-control cusReadonly input-md required', 'id'=>'ownership_status_id', 'onchange' => 'CategoryWiseDocLoad(this.value, "existing", "off")']) !!} --}}
                                                 {!! $errors->first('ownership_status_id','<span class="help-block">:message</span>') !!}
                                             </td>
 
                                             <td class="light-green">
                                                 <input type="hidden" name="caption[n_ownership_status_id]" value="Ownership status"/>
                                                 <div class="input-group">
-                                                    {!! Form::select('n_ownership_status_id', $eaOwnershipStatus, $appInfo->n_ownership_status_id, ['class' => 'form-control input-md','id'=>'n_ownership_status_id', 'onchange' => 'CategoryWiseDocLoad(this.value, "propose", "off")', (empty($appInfo->n_ownership_status_id) ? 'disabled' : '')]) !!}
+                                                    {!! Form::select('n_ownership_status_id', $eaOwnershipStatus, $appInfo->n_ownership_status_id, ['class' => 'form-control input-md','id'=>'n_ownership_status_id', (empty($appInfo->n_ownership_status_id) ? 'disabled' : '')]) !!}
+                                                    {{-- {!! Form::select('n_ownership_status_id', $eaOwnershipStatus, $appInfo->n_ownership_status_id, ['class' => 'form-control input-md','id'=>'n_ownership_status_id', 'onchange' => 'CategoryWiseDocLoad(this.value, "propose", "off")', (empty($appInfo->n_ownership_status_id) ? 'disabled' : '')]) !!} --}}
                                                     <span class="input-group-addon">
                                                     {!! Form::checkbox("toggleCheck[n_ownership_status_id]", 1, (empty($appInfo->n_ownership_status_id) ? false : true), ['class' => 'field', 'id' => 'n_ownership_status_id_check', 'onclick' => "toggleCheckBox('n_ownership_status_id_check', ['n_ownership_status_id']);"]) !!}
                                                 </span>
@@ -643,7 +624,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 <td width="29%" class="light-green">Description</td>
                                             </tr>
                                             <tr>
-                                                <td width="22%">Section</td>
+                                                <td width="22%" >Section</td>
                                                 <td width="10%" class="light-yellow"><span id="ex_section_code"></span></td>
                                                 <td width="29%" class="light-yellow"><span id="ex_section_name"></span></td>
 
@@ -651,7 +632,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 <td width="29%" class="light-green"><span id="pro_section_name"></span></td>
                                             </tr>
                                             <tr>
-                                                <td width="22%">Division</td>
+                                                <td width="22%" >Division</td>
                                                 <td width="10%" class="light-yellow"><span id="ex_division_code"></span></td>
                                                 <td width="29%" class="light-yellow"><span id="ex_division_name"></span></td>
 
@@ -659,7 +640,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 <td width="29%" class="light-green"><span id="pro_division_name"></span></td>
                                             </tr>
                                             <tr>
-                                                <td width="22%">Group</td>
+                                                <td width="22%" >Group</td>
                                                 <td width="10%" class="light-yellow"><span id="ex_group_code"></span></td>
                                                 <td width="29%" class="light-yellow"><span id="ex_group_name"></span></td>
 
@@ -667,7 +648,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 <td width="29%" class="light-green"><span id="pro_group_name"></span></td>
                                             </tr>
                                             <tr>
-                                                <td width="22%">Class</td>
+                                                <td width="22%" >Class</td>
                                                 <td width="10%" class="light-yellow"><span id="ex_class_code"></span></td>
                                                 <td width="29%" class="light-yellow"><span id="ex_class_name"></span></td>
 
@@ -687,7 +668,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </tr>
                                             {{-- {{ dd($appInfo->other_sub_class_code) }} --}}
                                             <tr id="other_sub_class_code_parent">
-                                                <td width="20%" class="">Other sub class code</td>
+                                                <td width="20%" class="required-star">Other sub class code</td>
                                                 <td colspan="2" class="light-yellow"><input type="text" name="other_sub_class_code" id="other_sub_class_code" class="form-control hidden cusReadonly" value="{{ !empty($appInfo->other_sub_class_code) ? $appInfo->other_sub_class_code : "" }}"></td>
                                                 <td colspan="2" class="light-green"><input type="text" name="n_other_sub_class_code" id="n_other_sub_class_code" class="form-control hidden" value="{{ !empty($appInfo->n_other_sub_class_code) ? $appInfo->n_other_sub_class_code : "" }}" {{ empty($appInfo->n_other_sub_class_code) ? 'disabled' : '' }}></td>
                                             </tr>
@@ -715,10 +696,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <td>Country</td>
+                                            <td class="required-star">Country</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::select('ceo_country_id', $countries, $appInfo->ceo_country_id, ['class' => 'form-control  input-md cusReadonly','id'=>'ceo_country_id']) !!}
+                                                {!! Form::select('ceo_country_id', $countries, $appInfo->ceo_country_id, ['class' => 'form-control required  input-md cusReadonly','id'=>'ceo_country_id']) !!}
                                                 {!! $errors->first('ceo_country_id','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -734,11 +715,11 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Date of Birth</td>
+                                            <td class="required-star">Date of Birth</td>
 
                                             <td class="light-yellow">
                                                 <div class="input-group date" data-date-format="dd-mm-yyyy">
-                                                    {!! Form::text('ceo_dob', (!empty($appInfo->ceo_dob) ? date('d-M-Y', strtotime($appInfo->ceo_dob)) : ''), ['class'=>'form-control input-md datepicker cusReadonly', 'id' => 'ceo_dob', 'placeholder'=>'Pick from datepicker']) !!}
+                                                    {!! Form::text('ceo_dob', (!empty($appInfo->ceo_dob) ? date('d-M-Y', strtotime($appInfo->ceo_dob)) : ''), ['class'=>'form-control required input-md datepicker cusReadonly', 'id' => 'ceo_dob', 'placeholder'=>'Pick from datepicker']) !!}
                                                 </div>
                                                 {!! $errors->first('ceo_dob','<span class="help-block">:message</span>') !!}
                                             </td>
@@ -746,7 +727,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <td class="light-green">
                                                 <input type="hidden" name="caption[n_ceo_dob]" value="Principal promoter date of birth"/>
                                                 <div class="input-group">
-                                                    <div class="date" data-date-format="dd-mm-yyyy" style="display: flex;">
+                                                    <div class="date" data-date-format="dd-mm-yyyy">
                                                         {!! Form::text('n_ceo_dob', !empty($appInfo->n_ceo_dob) ? date('d-M-Y', strtotime($appInfo->n_ceo_dob)) : '', ['class'=>'form-control input-md datepicker datepicker-width', 'id' => 'n_ceo_dob', 'placeholder'=>'Pick from datepicker', (empty($appInfo->n_ceo_dob) ? 'disabled' : '')]) !!}
                                                     </div>
                                                     <span class="input-group-addon">
@@ -758,7 +739,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>NID/ Passport No.</td>
+                                            <td class="required-star">NID/ Passport No.</td>
 
                                             <td class="light-yellow hidden" id="foreignExistingPassportField">
                                                 {!! Form::text('ceo_passport_no', $appInfo->ceo_passport_no,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_passport_no', 'placeholder' => 'Passport No.']) !!}
@@ -772,7 +753,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <td class="light-green hidden" id="foreignProposedPassportField">
                                                 <input type="hidden" name="caption[n_ceo_passport_no]" value="Principal promoter passport no."/>
                                                 <div class="input-group">
-                                                    {!! Form::text('n_ceo_passport_no', $appInfo->n_ceo_passport_no,['class'=>'form-control input-md', 'placeholder' => 'Passport No.', 'id' => 'n_ceo_passport_no', (empty($appInfo->n_ceo_passport_no) ? 'disabled' : '')]) !!}
+                                                    {!! Form::text('n_ceo_passport_no', $appInfo->n_ceo_passport_no,['class'=>'form-control input-md ', 'placeholder' => 'Passport No.', 'id' => 'n_ceo_passport_no', (empty($appInfo->n_ceo_passport_no) ? 'disabled' : '')]) !!}
                                                     <span class="input-group-addon">
                                                     {!! Form::checkbox("toggleCheck[n_ceo_passport_no]", 1, (empty($appInfo->n_ceo_passport_no) ? false:true), ['class' => 'field', 'id' => 'n_ceo_passport_no_check', 'onclick' => "toggleCheckBox('n_ceo_passport_no_check', ['n_ceo_passport_no']);"]) !!}
                                                     </span>
@@ -791,10 +772,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Designation</td>
+                                            <td class="required-star">Designation</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::text('ceo_designation', $appInfo->ceo_designation,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_designation']) !!}
+                                                {!! Form::text('ceo_designation', $appInfo->ceo_designation,['class'=>'form-control input-md cusReadonly required', 'id' => 'ceo_designation']) !!}
                                                 {!! $errors->first('ceo_designation','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -810,10 +791,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Full Name</td>
+                                            <td class="required-star">Full Name</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::text('ceo_full_name', $appInfo->ceo_full_name,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_full_name']) !!}
+                                                {!! Form::text('ceo_full_name', $appInfo->ceo_full_name,['class'=>'form-control input-md cusReadonly required', 'id' => 'ceo_full_name']) !!}
                                                 {!! $errors->first('ceo_full_name','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -829,14 +810,14 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>District/ City/ State</td>
+                                            <td class="required-star">District/ City/ State</td>
                                             
                                             <td class="light-yellow hidden" id="foreignExistingCity">
-                                                {!! Form::text('ceo_city', $appInfo->ceo_city,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_City', 'placeholder' => 'District/ City/ State']) !!}
+                                                {!! Form::text('ceo_city', $appInfo->ceo_city,['class'=>'form-control input-md required cusReadonly', 'id' => 'ceo_City', 'placeholder' => 'District/ City/ State']) !!}
                                                 {!! $errors->first('ceo_city','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-yellow hidden" id="BDExistingDistrict">
-                                                {!! Form::select('ceo_district_id', $districts, $appInfo->ceo_district_id,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_district_id', 'onchange'=>"getThanaByDistrictId('ceo_district_id', this.value, 'ceo_thana_id')"]) !!}
+                                                {!! Form::select('ceo_district_id', $districts, $appInfo->ceo_district_id,['class'=>'form-control input-md  cusReadonly', 'id' => 'ceo_district_id', 'onchange'=>"getThanaByDistrictId('ceo_district_id', this.value, 'ceo_thana_id')"]) !!}
                                                 {!! $errors->first('ceo_district_id','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -865,7 +846,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>State/ Province/ Police station/ Town</td>
+                                            <td class="required-star">State/ Province/ Police station/ Town</td>
 
                                             <td class="light-yellow hidden" id="foreignExistingState">
                                                 {!! Form::text('ceo_state', $appInfo->ceo_state,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_state', 'placeholder' => 'State/ Province']) !!}
@@ -899,10 +880,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Post/ Zip Code</td>
+                                            <td class="required-star">Post/ Zip Code</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::text('ceo_post_code', $appInfo->ceo_post_code,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_post_code']) !!}
+                                                {!! Form::text('ceo_post_code', $appInfo->ceo_post_code,['class'=>'form-control input-md cusReadonly required', 'id' => 'ceo_post_code']) !!}
                                                 {!! $errors->first('ceo_post_code','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -918,7 +899,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>House, Flat/ Apartment, Road</td>
+                                            <td class="required-star">House, Flat/ Apartment, Road</td>
 
                                             <td class="light-yellow">
                                                 {!! Form::text('ceo_address', $appInfo->ceo_address,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_address']) !!}
@@ -928,7 +909,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <td class="light-green">
                                                 <input type="hidden" name="caption[n_ceo_address]" value="Principal promoter house, flat/ apartment, road"/>
                                                 <div class="input-group">
-                                                    {!! Form::text('n_ceo_address', $appInfo->n_ceo_address,['class'=>'form-control input-md', 'id' => 'n_ceo_address', (empty($appInfo->n_ceo_address) ? 'disabled' : '')]) !!}
+                                                    {!! Form::text('n_ceo_address', $appInfo->n_ceo_address,['class'=>'form-control input-md required', 'id' => 'n_ceo_address', (empty($appInfo->n_ceo_address) ? 'disabled' : '')]) !!}
                                                     <span class="input-group-addon">
                                                     {!! Form::checkbox("toggleCheck[n_ceo_address]", 1, (empty($appInfo->n_ceo_address) ? false:true), ['class' => 'field', 'id' => 'n_ceo_address_check', 'onclick' => "toggleCheckBox('n_ceo_address_check', ['n_ceo_address']);"]) !!}
                                                     </span>
@@ -956,10 +937,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Mobile No.</td>
+                                            <td class="required-star">Mobile No.</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::text('ceo_mobile_no', $appInfo->ceo_mobile_no,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_mobile_no']) !!}
+                                                {!! Form::text('ceo_mobile_no', $appInfo->ceo_mobile_no,['class'=>'form-control input-md cusReadonly required', 'id' => 'ceo_mobile_no']) !!}
                                                 {!! $errors->first('ceo_mobile_no','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -975,10 +956,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Email</td>
+                                            <td class="required-star">Email</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::email('ceo_email', $appInfo->ceo_email,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_email']) !!}
+                                                {!! Form::email('ceo_email', $appInfo->ceo_email,['class'=>'form-control input-md cusReadonly required', 'id' => 'ceo_email']) !!}
                                                 {!! $errors->first('ceo_email','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -1013,10 +994,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Father's Name</td>
+                                            <td class="required-star">Father's Name</td>
                                             
                                             <td class="light-yellow">
-                                                {!! Form::text('ceo_father_name', $appInfo->ceo_father_name,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_father_name']) !!}
+                                                {!! Form::text('ceo_father_name', $appInfo->ceo_father_name,['class'=>'form-control input-md cusReadonly required', 'id' => 'ceo_father_name']) !!}
                                                 {!! $errors->first('ceo_father_name','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -1032,7 +1013,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Mother's Name</td>
+                                            <td class="required-star">Mother's Name</td>
 
                                             <td class="light-yellow">
                                                 {!! Form::text('ceo_mother_name', $appInfo->ceo_mother_name,['class'=>'form-control input-md cusReadonly', 'id' => 'ceo_mother_name']) !!}
@@ -1042,7 +1023,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <td class="light-green">
                                                 <input type="hidden" name="caption[n_ceo_mother_name]" value="Principal promoter mother's name"/>
                                                 <div class="input-group">
-                                                    {!! Form::text('n_ceo_mother_name', $appInfo->n_ceo_mother_name,['class'=>'form-control input-md', 'id' => 'n_ceo_mother_name', (empty($appInfo->n_ceo_mother_name) ? 'disabled' : '')]) !!}
+                                                    {!! Form::text('n_ceo_mother_name', $appInfo->n_ceo_mother_name,['class'=>'form-control input-md required', 'id' => 'n_ceo_mother_name', (empty($appInfo->n_ceo_mother_name) ? 'disabled' : '')]) !!}
                                                     <span class="input-group-addon">
                                                     {!! Form::checkbox("toggleCheck[n_ceo_mother_name]", 1, (empty($appInfo->n_ceo_mother_name) ? false:true), ['class' => 'field', 'id' => 'n_ceo_mother_name_check', 'onclick' => "toggleCheckBox('n_ceo_mother_name_check', ['n_ceo_mother_name']);"]) !!}
                                                     </span>
@@ -1070,11 +1051,11 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Gender</td>
+                                            <td class="required-star">Gender</td>
 
                                             <td class="light-yellow">
-                                                <label class="radio-inline">{!! Form::radio('ceo_gender','male', ($appInfo->ceo_gender == 'Male' ? true : false), ['class' => 'cusReadonly']) !!}  Male</label>
-                                                <label class="radio-inline">{!! Form::radio('ceo_gender', 'female', ($appInfo->ceo_gender == 'Female' ? true : false), ['class' => 'cusReadonly']) !!}  Female</label>
+                                                <label class="radio-inline">{!! Form::radio('ceo_gender','male', ($appInfo->ceo_gender == 'Male' ? true : false), ['class' => 'cusReadonly required']) !!}  Male</label>
+                                                <label class="radio-inline">{!! Form::radio('ceo_gender', 'female', ($appInfo->ceo_gender == 'Female' ? true : false), ['class' => 'cusReadonly required']) !!}  Female</label>
                                                 {!! $errors->first('ceo_gender','<span class="help-block">:message</span>') !!}
                                             </td>
                                             
@@ -1108,10 +1089,10 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <td>Division</td>
+                                            <td class="required-star">Division</td>
 
                                             <td class="light-yellow">
-                                                {!! Form::select('office_division_id', $divisions, $appInfo->office_division_id,['class'=>'form-control input-md cusReadonly', 'id' => 'office_division_id', 'onchange'=>"getDistrictByDivisionId('office_division_id', this.value, 'office_district_id', ". $appInfo->office_district_id .")"]) !!}
+                                                {!! Form::select('office_division_id', $divisions, $appInfo->office_division_id,['class'=>'form-control required input-md cusReadonly', 'id' => 'office_division_id', 'onchange'=>"getDistrictByDivisionId('office_division_id', this.value, 'office_district_id', ". $appInfo->office_district_id .")"]) !!}
                                                 {!! $errors->first('office_division_id','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -1127,9 +1108,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>District</td>
+                                            <td class="required-star">District</td>
                                             <td class="light-yellow">
-                                                {!! Form::select('office_district_id', $districts, $appInfo->office_district_id,['class'=>'form-control input-md cusReadonly', 'id' => 'office_district_id', 'placeholder' => 'Select Division First', 'onchange'=>"getThanaByDistrictId('office_district_id', this.value, 'office_thana_id', ". $appInfo->office_thana_id .")"]) !!}
+                                                {!! Form::select('office_district_id', $districts, $appInfo->office_district_id,['class'=>'form-control required input-md cusReadonly', 'id' => 'office_district_id', 'placeholder' => 'Select Division First', 'onchange'=>"getThanaByDistrictId('office_district_id', this.value, 'office_thana_id', ". $appInfo->office_thana_id .")"]) !!}
                                                 {!! $errors->first('office_district_id','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -1145,9 +1126,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Police Station</td>
+                                            <td class="required-star">Police Station</td>
                                             <td class="light-yellow">
-                                                {!! Form::select('office_thana_id', [], $appInfo->office_thana_id,['class'=>'form-control input-md cusReadonly', 'id' => 'office_thana_id', 'placeholder' => 'Select District First']) !!}
+                                                {!! Form::select('office_thana_id', [], $appInfo->office_thana_id,['class'=>'form-control required input-md cusReadonly', 'id' => 'office_thana_id', 'placeholder' => 'Select District First']) !!}
                                                 {!! $errors->first('office_thana_id','<span class="help-block">:message</span>') !!}
                                             </td>
 
@@ -1163,9 +1144,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Post Office</td>
+                                            <td class="required-star">Post Office</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('office_post_office', $appInfo->office_post_office,['class'=>'form-control input-md cusReadonly', 'id' => 'office_post_office']) !!}
+                                                {!! Form::text('office_post_office', $appInfo->office_post_office,['class'=>'form-control required input-md cusReadonly', 'id' => 'office_post_office']) !!}
                                                 {!! $errors->first('office_post_office','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1180,9 +1161,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Post Code</td>
+                                            <td class="required-star">Post Code</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('office_post_code', $appInfo->office_post_code,['class'=>'form-control input-md alphaNumeric cusReadonly', 'id' => 'office_post_code']) !!}
+                                                {!! Form::text('office_post_code', $appInfo->office_post_code,['class'=>'form-control required input-md alphaNumeric cusReadonly', 'id' => 'office_post_code']) !!}
                                                 {!! $errors->first('office_post_code','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1197,9 +1178,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Address</td>
+                                            <td class="required-star">Address</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('office_address', $appInfo->office_address,['class'=>'form-control input-md cusReadonly', 'id' => 'office_address']) !!}
+                                                {!! Form::text('office_address', $appInfo->office_address,['class'=>'form-control required input-md cusReadonly', 'id' => 'office_address']) !!}
                                                 {!! $errors->first('office_address','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1231,9 +1212,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Mobile No.</td>
+                                            <td class="required-star">Mobile No.</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('office_mobile_no', $appInfo->office_mobile_no,['class'=>'form-control input-md cusReadonly', 'id' => 'office_mobile_no']) !!}
+                                                {!! Form::text('office_mobile_no', $appInfo->office_mobile_no,['class'=>'form-control required input-md cusReadonly', 'id' => 'office_mobile_no']) !!}
                                                 {!! $errors->first('office_mobile_no','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1265,9 +1246,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Email </td>
+                                            <td class="required-star">Email </td>
                                             <td class="light-yellow">
-                                                {!! Form::email('office_email', $appInfo->office_email,['class'=>'form-control input-md cusReadonly', 'id' => 'office_email']) !!}
+                                                {!! Form::email('office_email', $appInfo->office_email,['class'=>'form-control input-md required cusReadonly', 'id' => 'office_email']) !!}
                                                 {!! $errors->first('office_email','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1299,9 +1280,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                         </thead>
                                         <tbody>
                                         <tr>
-                                            <td>District</td>
+                                            <td class="required-star">District</td>
                                             <td class="light-yellow">
-                                                {!! Form::select('factory_district_id', $districts, $appInfo->factory_district_id,['class'=>'form-control input-md cusReadonly', 'id' => 'factory_district_id', 'onchange'=>"getThanaByDistrictId('factory_district_id', this.value, 'factory_thana_id', ". $appInfo->factory_thana_id .")"]) !!}
+                                                {!! Form::select('factory_district_id', $districts, $appInfo->factory_district_id,['class'=>'form-control   required input-md cusReadonly', 'id' => 'factory_district_id', 'onchange'=>"getThanaByDistrictId('factory_district_id', this.value, 'factory_thana_id', ". $appInfo->factory_thana_id .")"]) !!}
                                                 {!! $errors->first('factory_district_id','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1316,9 +1297,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Police Station</td>
+                                            <td class="required-star">Police Station</td>
                                             <td class="light-yellow">
-                                                {!! Form::select('factory_thana_id', [], $appInfo->factory_thana_id,['class'=>'form-control input-md cusReadonly', 'placeholder' => 'Select District First','id' => 'factory_thana_id']) !!}
+                                                {!! Form::select('factory_thana_id', [], $appInfo->factory_thana_id,['class'=>'form-control required input-md cusReadonly', 'placeholder' => 'Select District First','id' => 'factory_thana_id']) !!}
                                                 {!! $errors->first('factory_thana_id','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1333,9 +1314,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Post Office</td>
+                                            <td class="required-star">Post Office</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('factory_post_office', $appInfo->factory_post_office,['class'=>'form-control input-md cusReadonly', 'id' => 'factory_post_office']) !!}
+                                                {!! Form::text('factory_post_office', $appInfo->factory_post_office,['class'=>'form-control required input-md cusReadonly', 'id' => 'factory_post_office']) !!}
                                                 {!! $errors->first('factory_post_office','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1350,9 +1331,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Post Code</td>
+                                            <td class="required-star">Post Code</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('factory_post_code', $appInfo->factory_post_code,['class'=>'form-control input-md alphaNumeric cusReadonly', 'id' => 'factory_post_code']) !!}
+                                                {!! Form::text('factory_post_code', $appInfo->factory_post_code,['class'=>'form-control required input-md alphaNumeric cusReadonly', 'id' => 'factory_post_code']) !!}
                                                 {!! $errors->first('factory_post_code','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1367,9 +1348,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Address</td>
+                                            <td class="required-star">Address</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('factory_address', $appInfo->factory_address,['class'=>'form-control input-md cusReadonly', 'id' => 'factory_address']) !!}
+                                                {!! Form::text('factory_address', $appInfo->factory_address,['class'=>'form-control required input-md cusReadonly', 'id' => 'factory_address']) !!}
                                                 {!! $errors->first('factory_address','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1401,9 +1382,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>Mobile No.</td>
+                                            <td class="required-star">Mobile No.</td>
                                             <td class="light-yellow">
-                                                {!! Form::text('factory_mobile_no', $appInfo->factory_mobile_no,['class'=>'form-control input-md cusReadonly', 'id' => 'factory_mobile_no']) !!}
+                                                {!! Form::text('factory_mobile_no', $appInfo->factory_mobile_no,['class'=>'form-control required input-md cusReadonly', 'id' => 'factory_mobile_no']) !!}
                                                 {!! $errors->first('factory_mobile_no','<span class="help-block">:message</span>') !!}
                                             </td>
                                             <td class="light-green">
@@ -1454,9 +1435,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <td>Project status</td>
+                                                <td class="required-star">Project status</td>
                                                 <td class="light-yellow">
-                                                    {!! Form::select('project_status_id', $projectStatusList, $appInfo->project_status_id,['class'=>'form-control input-md cusReadonly', 'id' => 'project_status_id']) !!}
+                                                    {!! Form::select('project_status_id', $projectStatusList, $appInfo->project_status_id,['class'=>'form-control required input-md cusReadonly', 'id' => 'project_status_id']) !!}
                                                     {!! $errors->first('project_status_id','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td class="light-green">
@@ -1510,17 +1491,17 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             </thead>
                                             <tbody>
                                             <tr>
-                                                <td>Date of commercial operation</td>
+                                                <td class="required-star">Date of commercial operation</td>
                                                 <td class="light-yellow">
                                                     <div class="input-group date" data-date-format="dd-mm-yyyy">
-                                                        {!! Form::text('commercial_operation_date', (!empty($appInfo->commercial_operation_date) ? date('d-M-Y', strtotime($appInfo->commercial_operation_date)) : ''), ['class'=>'form-control input-md datepicker cusReadonly', 'id' => 'commercial_operation_date', 'placeholder'=>'Pick from datepicker']) !!}
+                                                        {!! Form::text('commercial_operation_date', (!empty($appInfo->commercial_operation_date) ? date('d-M-Y', strtotime($appInfo->commercial_operation_date)) : ''), ['class'=>'form-control required input-md datepicker cusReadonly', 'id' => 'commercial_operation_date', 'placeholder'=>'Pick from datepicker']) !!}
                                                     </div>
                                                     {!! $errors->first('commercial_operation_date','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td class="light-green">
                                                     <input type="hidden" name="caption[n_commercial_operation_date]" value="Date of commercial operation"/>
                                                     <div class="input-group">
-                                                        <div class="date" data-date-format="dd-mm-yyyy" style="display: flex;">
+                                                        <div class="date" data-date-format="dd-mm-yyyy">
                                                             {!! Form::text('n_commercial_operation_date', (!empty($appInfo->n_commercial_operation_date) ? date('d-M-Y', strtotime($appInfo->n_commercial_operation_date)) : ''), ['class'=>'form-control input-md datepicker co-datepicker-width', 'id' => 'n_commercial_operation_date', 'placeholder'=>'Pick from datepicker', (empty($appInfo->n_commercial_operation_date) ? 'disabled' : '')]) !!}
                                                         </div>
                                                         <span class="input-group-addon">
@@ -1541,7 +1522,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <tr>
                                                 <td>
                                                     <span>
-                                                        {!! Form::checkbox("multiToggleCheck[n_local_sales]", 1, (empty($appInfo->n_local_sales) ? false : true), ['class' => 'field', 'id' => 'n_foreign_sales_check', 'onclick' => "toggleCheckBox('n_foreign_sales_check', ['n_local_sales', 'n_foreign_sales']);"]) !!}
+                                                        {!! Form::checkbox("multiToggleCheck[n_local_sales]", 1, (is_null($appInfo->n_local_sales) ? false : true), ['class' => 'field', 'id' => 'n_foreign_sales_check', 'onclick' => "toggleCheckBox('n_foreign_sales_check', ['n_local_sales',  'n_foreign_sales']);"]) !!}
                                                     </span>
                                                 </td>
                                                 <td width="30%">Field name</td>
@@ -1552,14 +1533,14 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <tbody>
                                             <tr>
                                                 <td></td>
-                                                <td>Local</td>
+                                                <td class="required-star">Local</td>
                                                 <td class="light-yellow">
-                                                    {!! Form::text('local_sales', $appInfo->local_sales,['class'=>'form-control input-md cusReadonly', 'id' => 'local_sales_per']) !!}
+                                                    {!! Form::text('local_sales', $appInfo->local_sales,['class'=>'form-control required input-md cusReadonly', 'id' => 'local_sales_per']) !!}
                                                     {!! $errors->first('local_sales','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td class="light-green">
                                                     <div class="form-group">
-                                                        {!! Form::text('n_local_sales', $appInfo->n_local_sales,['class'=>'form-control input-md', 'id' => 'n_local_sales', (empty($appInfo->n_local_sales) ? 'disabled' : '')]) !!}
+                                                        {!! Form::text('n_local_sales', $appInfo->n_local_sales,['class'=>'form-control input-md', 'id' => 'n_local_sales', (is_null($appInfo->n_local_sales) ? 'disabled' : '')]) !!}
                                                     </div>
                                                     {!! $errors->first('n_local_sales','<span class="help-block">:message</span>') !!}
                                                 </td>
@@ -1573,16 +1554,44 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 </td>
                                                 <td class="light-green">
                                                     <div class="form-group">
-                                                        {!! Form::text('n_foreign_sales', $appInfo->n_foreign_sales,['class'=>'form-control input-md', 'id' => 'n_foreign_sales', (empty($appInfo->n_foreign_sales) ? 'disabled' : '')]) !!}
+                                                        {!! Form::text('n_foreign_sales', $appInfo->n_foreign_sales,['class'=>'form-control input-md', 'id' => 'n_foreign_sales', ($appInfo->local_sales > 20 && empty($appInfo->n_foreign_sales) ? 'disabled' : '')]) !!}
                                                     </div>
                                                     {!! $errors->first('n_foreign_sales','<span class="help-block">:message</span>') !!}
                                                 </td>
                                             </tr>
+                                            {{-- <tr>
+                                                <td></td>
+                                                <td class="required-star">Direct Export</td>
+                                                <td class="light-yellow">
+                                                    {!! Form::text('direct_export', $appInfo->direct_export,['class'=>'form-control required input-md cusReadonly', 'id' => 'direct_export_per']) !!}
+                                                    {!! $errors->first('direct_export','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                                <td class="light-green">
+                                                    <div class="form-group">
+                                                        {!! Form::text('n_direct_export', $appInfo->n_direct_export,['class'=>'form-control input-md', 'id' => 'n_direct_export', (empty($appInfo->n_direct_export) ? 'disabled' : '')]) !!}
+                                                    </div>
+                                                    {!! $errors->first('n_direct_export','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                            </tr>
                                             <tr>
                                                 <td></td>
-                                                <td>Total in %</td>
+                                                <td class="required-star">Deemed Export</td>
                                                 <td class="light-yellow">
-                                                    {!! Form::text('total_sales', $appInfo->total_sales,['class'=>'form-control input-md cusReadonly', 'id' => 'total_sales', 'readonly' => 'readonly', 'max' => '100']) !!}
+                                                    {!! Form::text('deemed_export', $appInfo->deemed_export,['class'=>'form-control input-md required cusReadonly', 'id' => 'deemed_export_per']) !!}
+                                                    {!! $errors->first('deemed_export','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                                <td class="light-green">
+                                                    <div class="form-group">
+                                                        {!! Form::text('n_deemed_export', $appInfo->n_deemed_export,['class'=>'form-control input-md', 'id' => 'n_deemed_export', (empty($appInfo->n_deemed_export) ? 'disabled' : '')]) !!}
+                                                    </div>
+                                                    {!! $errors->first('n_deemed_export','<span class="help-block">:message</span>') !!}
+                                                </td>
+                                            </tr> --}}
+                                            <tr>
+                                                <td></td>
+                                                <td class="required-star">Total in %</td>
+                                                <td class="light-yellow">
+                                                    {!! Form::text('total_sales', $appInfo->total_sales,['class'=>'form-control required input-md cusReadonly', 'id' => 'total_sales', 'readonly' => 'readonly', 'max' => '100']) !!}
                                                     {!! $errors->first('total_sales','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td class="light-green">
@@ -1612,37 +1621,37 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                             <tr>
                                                 <td></td>
                                                 <th>Information</th>
-                                                <th>Male</th>
-                                                <th>Female</th>
-                                                <th>Total (a)</th>
+                                                <th class="required-star">Executive</th>
+                                                <th class="required-star">Supporting Staff</th>
+                                                <th class="required-star">Total (a)</th>
 
-                                                <th>Male</th>
-                                                <th>Female</th>
-                                                <th>Total (b)</th>
+                                                <th class="required-star">Executive</th>
+                                                <th class="required-star">Supporting Staff</th>
+                                                <th class="required-star">Total (b)</th>
 
-                                                <th>(a+b)</th>
+                                                <th class="required-star">(a+b)</th>
 
-                                                <th>Local</th>
-                                                <th>Foreign</th>
+                                                <th class="required-star">Local</th>
+                                                <th class="required-star">Foreign</th>
                                             </tr>
                                             <tr class="light-yellow" id="exiting_manpower">
                                                 <td class="bg-yellow"></td>
                                                 <td class="bg-yellow">Existing (Latest BIDA Reg. Info.)</td>
                                                 <td>
-                                                    {!! Form::text('local_male', $appInfo->local_male,['class'=>'form-control input-md cusReadonly', 'id' => 'local_male']) !!}
+                                                    {!! Form::text('local_male', $appInfo->local_male,['class'=>'form-control required input-md cusReadonly', 'id' => 'local_male']) !!}
                                                     {!! $errors->first('local_male','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td>
-                                                    {!! Form::text('local_female', $appInfo->local_female,['class'=>'form-control input-md cusReadonly', 'id' => 'local_female']) !!}
+                                                    {!! Form::text('local_female', $appInfo->local_female,['class'=>'form-control required input-md cusReadonly', 'id' => 'local_female']) !!}
                                                     {!! $errors->first('local_female','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td>
-                                                    {!! Form::text('local_total', $appInfo->local_total,['class'=>'form-control input-md cusReadonly', 'id' => 'local_total', 'readonly']) !!}
+                                                    {!! Form::text('local_total', $appInfo->local_total,['class'=>'form-control required input-md cusReadonly', 'id' => 'local_total', 'readonly']) !!}
                                                     {!! $errors->first('local_total','<span class="help-block">:message</span>') !!}
                                                 </td>
 
                                                 <td>
-                                                    {!! Form::text('foreign_male', $appInfo->foreign_male,['class'=>'form-control input-md cusReadonly', 'id' => 'foreign_male']) !!}
+                                                    {!! Form::text('foreign_male', $appInfo->foreign_male,['class'=>'form-control required input-md cusReadonly', 'id' => 'foreign_male']) !!}
                                                     {!! $errors->first('foreign_male','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td>
@@ -1650,21 +1659,21 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                     {!! $errors->first('foreign_female','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td>
-                                                    {!! Form::text('foreign_total', $appInfo->foreign_total,['class'=>'form-control input-md cusReadonly', 'id' => 'foreign_total', 'readonly']) !!}
+                                                    {!! Form::text('foreign_total', $appInfo->foreign_total,['class'=>'form-control required input-md cusReadonly', 'id' => 'foreign_total', 'readonly']) !!}
                                                     {!! $errors->first('foreign_total','<span class="help-block">:message</span>') !!}
                                                 </td>
 
                                                 <td>
-                                                    {!! Form::text('manpower_total', $appInfo->manpower_total,['class'=>'form-control input-md cusReadonly', 'id' => 'mp_total', 'readonly']) !!}
+                                                    {!! Form::text('manpower_total', $appInfo->manpower_total,['class'=>'form-control required input-md cusReadonly', 'id' => 'mp_total', 'readonly']) !!}
                                                     {!! $errors->first('manpower_total','<span class="help-block">:message</span>') !!}
                                                 </td>
 
                                                 <td>
-                                                    {!! Form::text('manpower_local_ratio', $appInfo->manpower_local_ratio,['class'=>'form-control input-md cusReadonly', 'id' => 'mp_ratio_local', 'readonly']) !!}
+                                                    {!! Form::text('manpower_local_ratio', $appInfo->manpower_local_ratio,['class'=>'form-control required input-md cusReadonly', 'id' => 'mp_ratio_local', 'readonly']) !!}
                                                     {!! $errors->first('manpower_local_ratio','<span class="help-block">:message</span>') !!}
                                                 </td>
                                                 <td>
-                                                    {!! Form::text('manpower_foreign_ratio', $appInfo->manpower_foreign_ratio,['class'=>'form-control input-md cusReadonly', 'id' => 'mp_ratio_foreign', 'readonly']) !!}
+                                                    {!! Form::text('manpower_foreign_ratio', $appInfo->manpower_foreign_ratio,['class'=>'form-control required input-md cusReadonly', 'id' => 'mp_ratio_foreign', 'readonly']) !!}
                                                     {!! $errors->first('manpower_foreign_ratio','<span class="help-block">:message</span>') !!}
                                                 </td>
                                             </tr>
@@ -2188,7 +2197,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                                 <input type="hidden" name="source_of_finance_id[]" value="{{ $value->id }}">
                                                                 <td class="light-yellow">
                                                                     <div class="{{ $errors->has('country_id')?'has-error':'' }}">
-                                                                        {!! Form::select('country_id[]', $countries, $value->country_id,['class' => 'form-control input-md yellow required cusReadonly', 'id' => 'country_id']) !!}
+                                                                        {!! Form::select('country_id[]', $countries, $value->country_id,['class' => 'form-control input-md yellow  cusReadonly', 'id' => 'country_id']) !!}
                                                                         {!! $errors->first('country_id','<span class="help-block">:message</span>') !!}
                                                                     </div>
                                                                 </td>
@@ -2237,7 +2246,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                         <tr id="rowFinanceCostCount">
                                                             <td class="light-yellow">
                                                                 <div class="{{ $errors->has('country_id')?'has-error':'' }}">
-                                                                    {!! Form::select('country_id[0]', $countries, '',['class' => 'form-control input-md yellow required cusReadonly', 'id' => 'country_id']) !!}
+                                                                    {!! Form::select('country_id[0]', $countries, '',['class' => 'form-control input-md yellow  cusReadonly', 'id' => 'country_id']) !!}
                                                                     {!! $errors->first('country_id','<span class="help-block">:message</span>') !!}
                                                                 </div>
                                                             </td>
@@ -2343,8 +2352,20 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 </td>
                                                 <td>
                                                     <label class="checkbox-inline">
-                                                        <input type="checkbox" id="public_others" name="public_others" class="other_utility myCheckBox cusReadonly" @if($appInfo->public_others == 1) checked="checked" @endif>Others
+                                                        <input type="checkbox" id="public_others" onClick=publicOther(this); name="public_others" class="other_utility myCheckBox cusReadonly" @if($appInfo->public_others == 1) checked="checked" @endif>Others
                                                     </label>
+                                                </td>
+
+                                            </tr>
+                                            @if($appInfo->public_others == 1 && !empty($appInfo->public_others_field))
+                                                <tr>
+                                            @else
+                                                <tr id="public_others_field_div" class="hidden">
+                                                    @endif
+                                                <td class="bg-yellow"></td>
+                                                <td class="bg-yellow"></td>
+                                                <td colspan="8">
+                                                        {!! Form::text('public_others_field', $appInfo->public_others_field, ['placeholder'=>'Specify others', 'class' => 'form-control input-md', 'id' => 'public_others_field']) !!}
                                                 </td>
                                             </tr>
 
@@ -2395,9 +2416,20 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                                                 </td>
                                                 <td>
                                                     <label class="checkbox-inline">
-                                                        <input type="checkbox" id="n_public_others" name="n_public_others" class="other_utility myCheckBox" @if($appInfo->n_public_others == 1) checked="checked" @endif>Others
+                                                        <input type="checkbox" id="n_public_others" name="n_public_others" onClick=NewpublicOther(this); class="other_utility myCheckBox" @if($appInfo->n_public_others == 1) checked="checked" @endif>Others
                                                     </label>
                                                 </td>
+                                            </tr>
+                                            @if($appInfo->n_public_others == 1 && !empty($appInfo->n_public_others_field))
+                                                <tr>
+                                            @else
+                                            <tr id="n_public_others_field_div" class="hidden">
+                                            @endif
+                                            <td class="bg-green"></td>
+                                            <td class="bg-green"></td>
+                                            <td colspan="8">
+                                                {!! Form::text('n_public_others_field', $appInfo->n_public_others_field, ['placeholder'=>'Specify others', 'class' => 'form-control input-md', 'id' => 'n_public_others_field']) !!}
+                                            </td>
                                             </tr>
                                             </tbody>
                                         </table>
@@ -3166,10 +3198,6 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
 <link rel="stylesheet" href="{{ asset("assets/css/jquery-ui.css") }}"/>
 
 
-{{--<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.min.js"></script>--}}
-{{--<script src="{{ asset("assets/plugins/facedetection.js") }}" type="text/javascript"></script>--}}
-{{--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.2/croppie.min.css">--}}
-
 <script src="{{ asset("build/js/intlTelInput-jquery_v16.0.8.min.js") }}" type="text/javascript"></script>
 <script src="{{ asset("build/js/utils_v16.0.8.js") }}" type="text/javascript"></script>
 {{--Datepicker js--}}
@@ -3190,97 +3218,6 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
     var n_ceo_birthday = "{{ empty($appInfo->n_ceo_dob) ? true : false }}";
     var n_co_date = "{{ empty($appInfo->n_commercial_operation_date) ? true : false }}";
 
-    // function isApprovalOnline(isOnline)
-    // {
-    //     if (isOnline == 'yes'){
-    //         $("#ref_app_tracking_no_div").removeClass('hidden');
-    //         $("#ref_app_tracking_no").addClass('required');
-    //         $("#manually_approved_no_div").addClass('hidden');
-    //         $("#manually_approved_br_no").removeClass('required');
-    //     } else if (isOnline == 'no'){
-    //         $("#manually_approved_no_div").removeClass('hidden');
-    //         $("#manually_approved_br_no").addClass('required');
-    //         $("#ref_app_tracking_no_div").addClass('hidden');
-    //         $("#ref_app_tracking_no").removeClass('required');
-    //     } else {
-    //         $("#ref_app_tracking_no_div").addClass('hidden');
-    //         $("#manually_approved_no_div").addClass('hidden');
-    //     }
-    // }
-
-    // function CategoryWiseDocLoad(org_status_id, mode) {
-
-    //     if (org_status_id != "" && mode == "propose"){
-    //         if ($('#n_country_of_origin_id_check').is(':not(:checked)')) {
-    //             $('#n_country_of_origin_id_check').click();
-    //         }
-
-    //         if (org_status_id == 3) {
-    //             if($("#n_country_of_origin_id option[value='18']").length === 0) {
-    //                 $('#n_country_of_origin_id').append(`<option value="18">Bangladesh</option>`);
-    //             }
-    //             $("#n_country_of_origin_id").val("18").change();
-    //         } else {
-    //             $("#n_country_of_origin_id option[value='18']").remove();
-    //         }
-
-    //     }
-
-    //     if (org_status_id != "" && mode == "existing") {
-    //         if (org_status_id == 3) {
-    //             $('#country_of_origin_id').removeClass('required');
-    //             $('#country_of_origin_label').removeClass('required-star');
-    //             if($("#country_of_origin_id option[value='18']").length === 0) {
-    //                 $('#country_of_origin_id').append(`<option value="18">Bangladesh</option>`);
-    //             }
-    //             $("#country_of_origin_id").val("18").change();
-    //         } else {
-    //             $('#country_of_origin_id').addClass('required');
-    //             $('#country_of_origin_label').addClass('required-star');
-    //             $("#country_of_origin_id option[value='18']").remove();
-    //         }
-    //     }
-
-    //     if (org_status_id == 3) {
-    //         $("#machinery_equipment").removeClass('hidden');
-    //         $("#packing_materials").removeClass('hidden');
-    //     } else {
-    //         $("#machinery_equipment").addClass('hidden');
-    //         $("#packing_materials").addClass('hidden');
-    //     }
-
-    //     var attachment_key = "bra_";
-    //     if (org_status_id == 3) {
-    //         attachment_key += "local";
-    //     } else if (org_status_id == 2) {
-    //         attachment_key += "foreign";
-    //     } else {
-    //         attachment_key += "joint_venture";
-    //     }
-
-    //     if (org_status_id != 0 && org_status_id != '') {
-    //         var _token = $('input[name="_token"]').val();
-    //         var app_id = $("#app_id").val();
-    //         var viewMode = 'off';
-    //         $.ajax({
-    //             type: "POST",
-    //             url: '/bida-registration-amendment/getDocList',
-    //             dataType: "json",
-    //             data: {_token: _token, attachment_key: attachment_key, viewMode: viewMode, app_id: app_id},
-    //             success: function (result) {
-    //                 if (result.html != undefined) {
-    //                     $('#docListDiv').html(result.html);
-    //                 }
-    //             },
-    //             error: function (jqXHR, textStatus, errorThrown) {
-    //                 //console.log(errorThrown);
-    //                 alert('Unknown error occured. Please, try again after reload');
-    //             },
-    //         });
-    //     } else {
-    //         //console.log('Unknown Visa Type');
-    //     }
-    // }
 
     function CategoryWiseDocLoad(org_status_id, mode) {
         if (org_status_id != "" && mode == "propose"){
@@ -3353,7 +3290,27 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
         }
     }
 
+    function publicOther (id) {
+        $("#public_others_field_div").addClass('hidden');
+        $("#public_others_field").removeClass('required');
+        var isOtherChecked = $('#public_others').is(':checked');
+        if (isOtherChecked == true) {
+            $("#public_others_field_div").removeClass('hidden');
+            $("#public_others_field").addClass('required');
+        }
+    }
+
+    function NewpublicOther (id) {
+        $("#n_public_others_field_div").addClass('hidden');
+        $("#n_public_others_field").removeClass('required');
+        var isOtherChecked = $('#n_public_others').is(':checked');
+        if (isOtherChecked == true) {
+            $("#n_public_others_field_div").removeClass('hidden');
+            $("#n_public_others_field").addClass('required');
+        }
+    }
     $(document).ready(function() {
+
 
         listOfDirectors(20, 'off');
         loadAnnualProductionCapacityData(20, 'off');
@@ -3490,13 +3447,61 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                         }
                     }
 
-                    // let atLeastOneChecked = $('input:checkbox.field').is(':checked');
-                    // if (atLeastOneChecked) {
-                    //     return form.valid();
-                    // } else {
-                    //     swal({type: 'error', text: "In order to Proceed please select at least one field for amendment."});
-                    //     return false;
-                    // }
+
+                    var checkBoxes = document.getElementsByClassName('myCheckBox');
+                    var isChecked = false;
+                    for (var i = 0; i < checkBoxes.length; i++) {
+                        if (checkBoxes[i].checked) {
+                            isChecked = true;
+                        }
+                    }
+                    if (isChecked) {
+                        $(".myCheckBox").removeClass('required error');
+                    } else {
+                        $(".myCheckBox").addClass('required error');
+                        return false;
+                        alert('Please, check at least one checkbox for public utility service!');
+                    }
+                    if($("#AnnualProductdata").val() == 1){
+                        swal({
+                            type: 'error',
+                            title: 'Oops...',
+                            text: 'Please add Annual production Information'
+                        });
+
+                        return false;
+                    }
+                    if($("#n_total_sales").val() != 100 && $('#n_foreign_sales_check').is(':checked')) {
+                        $("#n_local_sales").addClass('error');
+                        $("#n_foreign_sales").addClass('error');
+                        // $("#n_direct_export").addClass('error');
+                        // $("#n_deemed_export").addClass('error');
+                        $('html, body').scrollTop($("#total_sales").offset().top);
+                        $("#total_sales").focus();
+                        swal({
+                            type: 'error',
+                            title: 'Oops...',
+                            text: 'Proposed Total Sales can not be more than or less than 100%'
+                        });
+                        
+                        return false;
+                    } if($("#total_sales").val() != 100 ) {
+                        // $("#deemed_export_per").addClass('error');
+                        // $("#direct_export_per").addClass('error');
+                        $("#local_sales_per").addClass('error');
+                        $("#foreign_sales_per").addClass('error');
+                        $('html, body').scrollTop($("#n_total_sales").offset().top);
+                        $("#n_total_sales").focus();
+
+                        swal({
+                            type: 'error',
+                            title: 'Oops...',
+                            text: 'Existing Total Sales can not be more than or less than 100%'
+                        });
+                        
+                        return false;
+                    }
+                        
 
                 }
 
@@ -3642,6 +3647,13 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
             var country_id = this.value;
             if (country_id == '18') {
                 $("#BDNIDExistingField").removeClass('hidden');
+                $("#ceo_nid").addClass('required');
+                $("#ceo_district_id").addClass('required');
+                $("#ceo_thana_id").addClass('required');
+
+                $("#ceo_state").removeClass('required');
+                $("#ceo_City").removeClass('required');
+                $("#ceo_passport_no").removeClass('required');
                 $("#foreignExistingPassportField").addClass('hidden');
 
                 $("#BDExistingTown").removeClass('hidden');
@@ -3660,6 +3672,14 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
 
                 $("#BDExistingDistrict").addClass('hidden');
                 $("#foreignExistingCity").removeClass('hidden');
+
+                $("#ceo_nid").removeClass('required');
+                $("#ceo_district_id").removeClass('required');
+                $("#ceo_thana_id").removeClass('required');
+
+                $("#ceo_state").addClass('required');
+                $("#ceo_City").addClass('required');
+                $("#ceo_passport_no").addClass('required');
             }
         });
 
@@ -3713,61 +3733,87 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
             }
         });
 
-        //---------------- Sales (in 100%)
-        $("#local_sales_per").on('keyup', function () {
-            var local_sales_per = this.value;
+        
+
+        // $("#n_local_sales, #n_direct_export, #n_deemed_export").on('input', function () {
+        $("#n_local_sales, #n_foreign_sales").on('input', function () {
+            $("#n_deemed_export").removeClass('error');
+            $("#n_direct_export").removeClass('error');
+            $("#n_local_sales").removeClass('error');
+            // var n_deemed_export =  $('#n_deemed_export').val() ? $('#n_deemed_export').val() : 0;
+            // var n_direct_export =  $('#n_direct_export').val() ? $('#n_direct_export').val() : 0;
+            var n_foreign_sales_per =  $('#n_foreign_sales').val() ? $('#n_foreign_sales').val() : 0;
+            var n_local_sales_per =  $('#n_local_sales').val() ? $('#n_local_sales').val() : 0;
+
+            if (n_local_sales_per <= 100 && n_local_sales_per >= 0) {
+                var cal = parseInt(n_local_sales_per) + parseInt(n_foreign_sales_per);
+                // var cal = parseInt(n_local_sales_per) + parseInt(n_direct_export) + parseInt(n_deemed_export);
+                let total = cal.toFixed(2);
+                $("#n_total_sales").val(total);
+                
+            } else {
+                swal({
+                    type: 'error',
+                    title: 'Oops...',
+                    text: 'Total Sales can not be more than 100% and less than 0%'
+                });
+                $('#n_local_sales').val(0);
+                $('#n_foreign_sales').val(0);
+                $("#n_total_sales").val(0);
+                // $('#n_deemed_export').val(0);
+                // $('#n_direct_export').val(0);
+            }
+            if($('#n_total_sales').val() > 100){
+                swal({
+                    type: 'error',
+                    title: 'Oops...',
+                    text: 'Total Sales can not be more than 100%'
+                });
+                $('#n_local_sales').val(0);
+                $('#n_foreign_sales').val(0);
+                // $('#n_direct_export').val(0);
+                // $('#n_deemed_export').val(0);
+                $("#n_total_sales").val(0);
+            }
+            
+        });
+
+        // $("#local_sales_per, #direct_export_per, #deemed_export_per").on('input', function () {
+        $("#local_sales_per, #foreign_sales_per").on('input', function () {
+            // $("#deemed_export_per").removeClass('error');
+            // $("#direct_export_per").removeClass('error');
+            $("#local_sales_per").removeClass('error');
+            // var deemed_export =  $('#deemed_export_per').val() ? $('#deemed_export_per').val() : 0;
+            // var direct_export =  $('#direct_export_per').val() ? $('#direct_export_per').val() : 0;
+            var foreign_sales_per =  $('#foreign_sales_per').val() ? $('#foreign_sales_per').val() : 0;
+            var local_sales_per =  $('#local_sales_per').val() ? $('#local_sales_per').val() : 0;
+
+
             if (local_sales_per <= 100 && local_sales_per >= 0) {
-                var cal = 100 - local_sales_per;
-                $('#foreign_sales_per').val(cal);
-                $("#total_sales").val(100);
+                var cal = parseInt(local_sales_per) + parseInt(foreign_sales_per);
+                // var cal = parseInt(local_sales_per) + parseInt(deemed_export) + parseInt(direct_export);
+                let total = cal.toFixed(2);
+                $("#total_sales").val(total);
+                
             } else {
                 alert("Please select a value between 0 & 100");
                 $('#local_sales_per').val(0);
                 $('#foreign_sales_per').val(0);
+                // $('#deemed_export_per').val(0);
+                // $('#direct_export_per').val(0);
                 $("#total_sales").val(0);
             }
-        });
-
-        $("#foreign_sales_per").on('keyup', function () {
-            var foreign_sales_per = this.value;
-            if (foreign_sales_per <= 100 && foreign_sales_per >= 0) {
-                var cal = 100 - foreign_sales_per;
-                $('#local_sales_per').val(cal);
-                $("#total_sales").val(100);
-            } else {
-                alert("Please select a value between 0 & 100");
+            if($("#total_sales").val() >100){
+                swal({
+                    type: 'error',
+                    title: 'Oops...',
+                    text: 'Total Sales can not be more than 100%'
+                });
                 $('#local_sales_per').val(0);
                 $('#foreign_sales_per').val(0);
+                // $('#deemed_export_per').val(0);
+                // $('#direct_export_per').val(0);
                 $("#total_sales").val(0);
-            }
-        });
-
-        // Sales 100% for propose information
-        $("#n_local_sales").on('keyup', function () {
-            var n_local_sales = this.value;
-            if (n_local_sales <= 100 && n_local_sales >= 0) {
-                var cal = 100 - n_local_sales;
-                $('#n_foreign_sales').val(cal);
-                $("#n_total_sales").val(100);
-            } else {
-                alert("Please select a value between 0 & 100");
-                $('#n_local_sales').val(0);
-                $('#n_foreign_sales').val(0);
-                $("#n_total_sales").val(0);
-            }
-        });
-
-        $("#n_foreign_sales").on('keyup', function () {
-            var n_foreign_sales = this.value;
-            if (n_foreign_sales <= 100 && n_foreign_sales >= 0) {
-                var cal = 100 - n_foreign_sales;
-                $('#n_local_sales').val(cal);
-                $("#n_total_sales").val(100);
-            } else {
-                alert("Please select a value between 0 & 100");
-                $('#n_local_sales').val(0);
-                $('#n_foreign_sales').val(0);
-                $("#n_total_sales").val(0);
             }
         });
         //--------------end sales
@@ -3852,6 +3898,9 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
         //$('input[name=is_approval_online]:checked').trigger('click');
         $('#ceo_country_id').trigger('change');
         $('#n_ceo_country_id').trigger('change');
+
+        $("#local_sales_per").trigger('input');
+        $("#n_local_sales").trigger('input');
 
         //trigger business class code function when document ready
         $("#business_class_code").keyup();
@@ -4089,6 +4138,14 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
 
                 // trigger on category wise doc load
                 CategoryWiseDocLoad($('#organization_status_id').val());
+
+                if(boxId == 'n_foreign_sales_check'){
+                    $('#n_direct_export').val('');
+                    $('#n_deemed_export').val('');
+                    $('#n_direct_export').attr('disabled', true);
+                    $('#n_deemed_export').attr('disabled', true);
+                    $('#n_total_sales').val('');
+                }
 
                 if (val == 'n_male' || val == 'n_female'){
                     $("#" + val).attr("disabled", true);
@@ -4769,6 +4826,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
             if (amendment_type == 'existing') {
                 $("#other_sub_class_name").removeClass('hidden');
                 $("#other_sub_class_code").removeClass('hidden');
+                $("#other_sub_class_code").addClass('required');
                 $("#other_sub_class_name").addClass('required');
             }
             
@@ -4786,6 +4844,7 @@ if (!ACL::isAllowed($accessMode, '-E-')) {
                 $("#other_sub_class_name").addClass('hidden');
                 $("#other_sub_class_code").addClass('hidden');
                 $("#other_sub_class_name").removeClass('required');
+                $("#other_sub_class_code").removeClass('required');
             }
             if (amendment_type == 'propose') {
                 $("#n_other_sub_class_name").addClass('hidden');
