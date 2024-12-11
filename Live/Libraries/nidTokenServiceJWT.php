@@ -43,7 +43,7 @@ class nidTokenServiceJWT
     public function storeNIDToken($jwtTokenArray)
     {
         $userVerificationTokenData = UserVerificationOtp::where('user_email', Session::get('oauth_data')->user_email)
-            ->where('user_mobile', Session::get('oauth_data')->user_mobile)
+            ->where('user_mobile', Session::get('oauth_data')->mobile)
             ->where('otp_status', 2)
             ->orderBy('id', 'DESC')
             ->first();

@@ -7,6 +7,7 @@ use App\Libraries\ETINverification;
 use App\Libraries\ImageProcessing;
 use App\Libraries\nidTokenServiceJWT;
 use App\Libraries\NIDverification;
+use App\Libraries\OtpService;
 use App\Libraries\UtilFunction;
 use App\Modules\CompanyAssociation\Models\CompanyAssociation;
 use App\Modules\Signup\Models\UserVerificationData;
@@ -469,7 +470,7 @@ class SignupController extends Controller
         return Redirect::back();
     }
 
-    public function identityVerify()
+    public function identityVerifyOld()
     {
         if (!Session::has('oauth_token') or !Session::has('oauth_data')) {
             Session::flash('error', 'You have no access right! This incidence will be reported. Contact with system admin for more information.');
@@ -507,10 +508,61 @@ class SignupController extends Controller
             return view('Signup::identity-verify', compact('countries', 'passport_types', 'nationalities',
                 'passport_nationalities', 'getPreviousVerificationData', 'previous_info'));
         }
+
         // if token status 2 then flash error message not show
         if($nidUserVerificationData && $nidUserVerificationData->token_status == 2){
             return redirect()->route('signup.identity_verify_otp');
         }
+
+        Session::flash('error', 'Token not found! You have no access right! This incidence will be reported.');
+        return redirect()->route('signup.identity_verify_otp');
+    }
+
+    public function identityVerify()
+    {
+        if (!Session::has('oauth_token') or !Session::has('oauth_data')) {
+            Session::flash('error', 'You have no access right! This incidence will be reported. Contact with system admin for more information.');
+            return redirect()->to('/login');
+        }
+
+        $nidUserVerificationData = UserVerificationOtp::where('user_email', Session::get('oauth_data')->user_email)
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if($nidUserVerificationData && $nidUserVerificationData->token_expire_time > Carbon::now() && $nidUserVerificationData->token_status == 1){
+
+            $countries = Countries::where('country_status', 'Yes')->orderby('nicename')->lists('nicename', 'id');
+            $passport_types = [
+                'ordinary' => 'Ordinary',
+                'diplomatic' => 'Diplomatic',
+                'official' => 'Official',
+            ];
+            $nationalities = Countries::orderby('nationality')->where('nationality', '!=', '')
+                ->lists('nationality', 'id');
+            $passport_nationalities = Countries::orderby('nationality')->where('nationality', '!=', '')->where('nationality', '!=', 'Bangladeshi')
+                ->lists('nationality', 'id');
+
+            $getPreviousVerificationData = UserVerificationData::where('user_email', Session::get('oauth_data')->user_email)->where('created_at', '>=', Carbon::now()->subDay())->first();
+
+            $previous_info = '';
+
+            if (!empty($getPreviousVerificationData) && $getPreviousVerificationData->identity_type == 'tin') {
+                $previous_info = json_decode(Encryption::decode($getPreviousVerificationData->eTin_info), true);
+            } elseif (!empty($getPreviousVerificationData) && $getPreviousVerificationData->identity_type == 'nid') {
+                $previous_info = json_decode(Encryption::decode($getPreviousVerificationData->nid_info), true);
+            } elseif (!empty($getPreviousVerificationData) && $getPreviousVerificationData->identity_type == 'passport') {
+                $previous_info = json_decode(Encryption::decode($getPreviousVerificationData->passport_info), true);
+            }
+
+            return view('Signup::identity-verify', compact('countries', 'passport_types', 'nationalities',
+                'passport_nationalities', 'getPreviousVerificationData', 'previous_info'));
+        }
+
+        // if token status 2 then flash error message not show
+        if($nidUserVerificationData && $nidUserVerificationData->token_status == 2){
+            return redirect()->route('signup.identity_verify_otp');
+        }
+
         Session::flash('error', 'Token not found! You have no access right! This incidence will be reported.');
         return redirect()->route('signup.identity_verify_otp');
     }
@@ -580,7 +632,7 @@ class SignupController extends Controller
                 }
 
                 $response = $this->nidVerify($request);
-                
+
                 $responseData = json_decode($response->getContent(), true);
 
                 if(array_key_exists('success', $responseData) && $responseData['success'] == true){
@@ -682,7 +734,7 @@ class SignupController extends Controller
                 }else{
                     $data['message'] = 'Sorry! Name is not valid. Please try again';
                 }
-                
+
             }
             return response()->json($data);
             /* 
@@ -1222,7 +1274,7 @@ class SignupController extends Controller
                 $user_nid = $nid_info['nationalId'];
                 $user_name_en = $nid_info['nameEn'];
                 $user_DOB = $nid_info['dateOfBirth'];
-                
+
                 $user->user_nid = $user_nid;
 
             } elseif ($identity_type === 'tin') {
@@ -1452,6 +1504,58 @@ class SignupController extends Controller
         );
 
         Session::put('access_log_id', $str_random);
+    }
+
+    public function otpServiceCallback(Request $request)
+    {
+        
+        $otpService = new OtpService();
+
+
+        $base64DecodeData = base64_decode($request->get('oauthData'));
+
+        $jsonDecodedData = json_decode($base64DecodeData);
+
+
+       // Log::info('otpServiceCallback: ' . $base64DecodeData);
+
+
+
+//dd($jsonDecodedData);
+        $otpResponse = $otpService->verifySecretKey($jsonDecodedData);
+       // dd($otpResponse, 1);
+        if ($otpResponse->status) {
+
+            $userVerificationOtp = new UserVerificationOtp();
+            $userVerificationOtp->user_email = Session::get('oauth_data')->user_email;
+            $userVerificationOtp->user_mobile = Session::get('oauth_data')->mobile;
+            $userVerificationOtp->otp_status = 2;
+            $userVerificationOtp->save();
+
+
+            $clientData = new stdClass();
+            $clientData->client_id = config('app.NID_JWT_ID');
+            $clientData->client_secret_key = config('app.NID_JWT_SECRET_KEY');
+            $clientData->encryption_key = config('app.NID_JWT_ENCRYPTION_KEY');
+
+            //dd(Session::get('oauth_data'));
+
+            // JNID verification JWT token generation
+            $tokenService = new nidTokenServiceJWT();
+            $jwtTokenArray = $tokenService->generateNIDToken($clientData);
+
+
+
+
+            // NID verification JWT token store
+            $tokenService->storeNIDToken($jwtTokenArray);
+            return redirect()->to('signup/identity-verify');
+
+        } else {
+            $errorMessage = !empty($otpResponse->errorMessage) ? $otpResponse->errorMessage : 'Failed to verify otp.Please try again';
+            Session::put("exception", $errorMessage);
+            return redirect('/login-message');
+        }
     }
 
 }
