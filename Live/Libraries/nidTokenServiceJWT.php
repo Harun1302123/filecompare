@@ -21,7 +21,7 @@ class nidTokenServiceJWT
     public function generateNIDToken($clientData)
     {
         try {
-            $tokenExpireTime = Configuration::where('caption', 'SIGNUP_NID_OTP_JWT_TOKEN_TIME')->pluck('value');
+            $tokenExpireTime = Configuration::where('caption', 'SIGNUP_NID_OTP_JWT_TOKEN_TIME')->pluck('value') ?: 180;
 
             $tokenEncodeData = [
                 'client_id' => $clientData->client_id,

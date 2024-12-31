@@ -382,6 +382,14 @@ class SignupController extends Controller
     public function identityVerifyOtp(Request $request)
     {
         try{
+            if (isset(Session::get('oauth_data')->mobile)) {
+                $otpService = new OtpService();
+                $url = $otpService->generateOtpVerificationUrl(Session::get('oauth_data')->mobile);
+                return redirect()->away($url);
+            }else{
+                return redirect()->to('/login');
+            }
+            // old below code is for previous version
             $otpExpireTime = Configuration::where('caption', 'SIGNUP_NID_OTP_JWT_TOKEN_TIME')->pluck('value');
             if (empty($otpExpireTime)) {
                 return response()->json([
