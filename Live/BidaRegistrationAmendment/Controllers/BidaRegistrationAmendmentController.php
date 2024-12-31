@@ -298,12 +298,12 @@ class BidaRegistrationAmendmentController extends Controller
 
                     $getAnnualProductionCapacity = DB::table('annual_production_capacity_amendment')
                         ->select(DB::raw('
-                            ifnull(n_product_name, product_name) as product_name, 
-                            ifnull(n_quantity_unit, quantity_unit) as quantity_unit,
-                            ifnull(n_quantity, quantity) as quantity, 
-                            ifnull(n_price_usd, price_usd) as price_usd, 
-                            ifnull(n_price_taka, price_taka) as price_taka
-                        '))
+						    COALESCE(NULLIF(n_product_name, ""), product_name) as product_name,
+						    COALESCE(NULLIF(n_quantity_unit, ""), quantity_unit) as quantity_unit,
+						    COALESCE(NULLIF(n_quantity, ""), quantity) as quantity,
+						    COALESCE(NULLIF(n_price_usd, ""), price_usd) as price_usd,
+						    COALESCE(NULLIF(n_price_taka, ""), price_taka) as price_taka
+						'))
                         ->where(['app_id' => $bra_ref_no, 'process_type_id' => $this->process_type_id, 'status' => 1])
                         ->whereNotIn('amendment_type', ['delete', 'remove'])
                         ->get();
