@@ -298,12 +298,12 @@ class BidaRegistrationAmendmentController extends Controller
 
                     $getAnnualProductionCapacity = DB::table('annual_production_capacity_amendment')
                         ->select(DB::raw('
-                            ifnull(n_product_name, product_name) as product_name, 
-                            ifnull(n_quantity_unit, quantity_unit) as quantity_unit,
-                            ifnull(n_quantity, quantity) as quantity, 
-                            ifnull(n_price_usd, price_usd) as price_usd, 
-                            ifnull(n_price_taka, price_taka) as price_taka
-                        '))
+						    COALESCE(NULLIF(n_product_name, ""), product_name) as product_name,
+						    COALESCE(NULLIF(n_quantity_unit, ""), quantity_unit) as quantity_unit,
+						    COALESCE(NULLIF(n_quantity, ""), quantity) as quantity,
+						    COALESCE(NULLIF(n_price_usd, ""), price_usd) as price_usd,
+						    COALESCE(NULLIF(n_price_taka, ""), price_taka) as price_taka
+						'))
                         ->where(['app_id' => $bra_ref_no, 'process_type_id' => $this->process_type_id, 'status' => 1])
                         ->whereNotIn('amendment_type', ['delete', 'remove'])
                         ->get();
@@ -511,6 +511,10 @@ class BidaRegistrationAmendmentController extends Controller
                 'foreign_sales' => 'Existing foreign sales',
                 'n_local_sales' => 'Proposed local sales',
                 'n_foreign_sales' => 'Proposed foreign sales',
+                // 'direct_export' => 'Existing Direct Export',
+                // 'deemed_export' => 'Existing Deemed Export',
+                // 'n_direct_export' => 'Proposed Direct Export',
+                // 'n_deemed_export' => 'Proposed Deemed Export'
             ];
             
             foreach ($salesTypes as $type => $label) {
@@ -570,8 +574,13 @@ class BidaRegistrationAmendmentController extends Controller
             $local_sales = $request->get('local_sales') ?: 0;
             $foreign_sales = $request->get('foreign_sales') ?: 0;
 
-            $n_local_sales = $request->get('n_local_sales') ?: 0;
+            $n_local_sales = $request->get('n_local_sales') ?: null;
             $n_foreign_sales = $request->get('n_foreign_sales') ?: 0;
+
+            // $direct_export = $request->get('direct_export') ?: 0;
+            // $deemed_export = $request->get('deemed_export') ?: 0;
+            // $n_direct_export = $request->get('n_direct_export') ?: null;
+            // $n_deemed_export = $request->get('n_deemed_export') ?: null;
 
             $existingSalesValid = $this->validateSales($local_sales, $foreign_sales, 'existing');
             $proposedSalesValid = $this->validateSales($n_local_sales, $n_foreign_sales, 'proposed');
@@ -579,6 +588,14 @@ class BidaRegistrationAmendmentController extends Controller
             if (!$existingSalesValid || !$proposedSalesValid) {
                 return redirect()->back()->withInput();
             }
+            
+
+            // $existingSalesValid = $this->validateSales('existing', $local_sales, $direct_export, $deemed_export);
+            // $proposedSalesValid = $this->validateSales('proposed', $n_local_sales, $n_direct_export, $n_deemed_export);
+        
+            // if (!$existingSalesValid || !$proposedSalesValid) {
+            //     return redirect()->back()->withInput();
+            // }
 
             /*
              * Total Equity (Million) == Equity Amount (Million BDT)
@@ -593,7 +610,7 @@ class BidaRegistrationAmendmentController extends Controller
             }
             //checking equity amount
             if (number_format((float)$total_equity, 5, '.', '') != $request->finance_src_loc_total_equity_1) {
-                Session::flash('error', "Total equity amount should be equal to Total Equity (Million)");
+                Session::flash('error', "Total equity amount should be equal to Total Equity (Million) [Existing]");
                 return redirect()->back()->withInput();
             }
 
@@ -602,7 +619,7 @@ class BidaRegistrationAmendmentController extends Controller
             }
             //checking loan amount
             if (number_format((float)$total_loan, 5, '.', '') != $request->finance_src_total_loan) {
-                Session::flash('error', "Total loan amount should be equal to Total Loan (Million)");
+                Session::flash('error', "Total loan amount should be equal to Total Loan (Million) [Existing]");
                 return redirect()->back()->withInput();
             }
 
@@ -616,18 +633,16 @@ class BidaRegistrationAmendmentController extends Controller
 
                 //checking equity amount
                 if (number_format((float)$n_total_equity, 5, '.', '') != $request->n_finance_src_loc_total_equity_1) {
-                    Session::flash('error', "Total equity amount should be equal to Total Equity (Million)");
+                    Session::flash('error', "Total equity amount should be equal to Total Equity (Million) [Proposed]");
                     return redirect()->back()->withInput();
                 }
                 $n_total_loan = 0;
-                if(!empty($request->n_loan_amount[0])){
-                    foreach ($request->n_loan_amount as $value) {
-                        $n_total_loan += floatval($value);
-                    }
+                foreach ($request->n_loan_amount as $value) {
+                    $n_total_loan += floatval($value);
                 }
                 //checking loan amount
                 if (number_format((float)$n_total_loan, 5, '.', '') != $request->n_finance_src_total_loan) {
-                    Session::flash('error', "Total loan amount should be equal to Total Loan (Million)");
+                    Session::flash('error', "Total loan amount should be equal to Total Loan (Million) [Proposed]");
                     return redirect()->back()->withInput();
                 }
             }
@@ -760,6 +775,8 @@ class BidaRegistrationAmendmentController extends Controller
             //Existing sales
             $appData->local_sales = $request->get('local_sales');
             $appData->foreign_sales = $request->get('foreign_sales');
+            // $appData->direct_export = $request->get('direct_export');
+            // $appData->deemed_export = $request->get('deemed_export');
             $appData->total_sales = $request->get('total_sales');
 
             //Existing manpower
@@ -808,6 +825,7 @@ class BidaRegistrationAmendmentController extends Controller
             $appData->public_water = isset($request->public_water) ? 1 : null;
             $appData->public_drainage = isset($request->public_drainage) ? 1 : null;
             $appData->public_others = isset($request->public_others) ? 1 : null;
+            $appData->public_others_field = $request->get('public_others_field');
 
             $appData->trade_licence_num = $request->trade_licence_num;
             $appData->trade_licence_issuing_authority = $request->trade_licence_issuing_authority;
@@ -950,6 +968,8 @@ class BidaRegistrationAmendmentController extends Controller
             //proposed sales
             $appData->n_local_sales = !empty($request->get('n_local_sales')) ? $request->get('n_local_sales') : null;
             $appData->n_foreign_sales = !empty($request->get('n_foreign_sales')) ? $request->get('n_foreign_sales') : null;
+            // $appData->n_deemed_export = !empty($request->get('n_deemed_export')) ? $request->get('n_deemed_export') : null;
+            // $appData->n_direct_export = !empty($request->get('n_direct_export')) ? $request->get('n_direct_export') : null;
             $appData->n_total_sales = !empty($request->get('n_total_sales')) ? $request->get('n_total_sales') : null;
 
             //proposed manpower
@@ -983,8 +1003,8 @@ class BidaRegistrationAmendmentController extends Controller
             $appData->n_finance_src_loc_equity_1 = !empty($request->get('n_finance_src_loc_equity_1')) ? $request->get('n_finance_src_loc_equity_1') : null;
             $appData->n_finance_src_foreign_equity_1 = !empty($request->get('n_finance_src_foreign_equity_1')) ? $request->get('n_finance_src_foreign_equity_1') : null;
             $appData->n_finance_src_loc_total_equity_1 = !empty($request->get('n_finance_src_loc_total_equity_1')) ? $request->get('n_finance_src_loc_total_equity_1') : null;
-            $appData->n_finance_src_loc_loan_1 = !empty($request->get('n_finance_src_loc_loan_1')) ? $request->get('n_finance_src_loc_loan_1') : null;
-            $appData->n_finance_src_foreign_loan_1 = !empty($request->get('n_finance_src_foreign_loan_1')) ? $request->get('n_finance_src_foreign_loan_1') : null;
+            $appData->n_finance_src_loc_loan_1 = !empty($request->get('n_finance_src_loc_loan_1')) ? $request->get('n_finance_src_loc_loan_1') : 0;
+            $appData->n_finance_src_foreign_loan_1 = !empty($request->get('n_finance_src_foreign_loan_1')) ? $request->get('n_finance_src_foreign_loan_1') : 0;
             $appData->n_finance_src_total_loan = !empty($request->get('n_finance_src_total_loan')) ? $request->get('n_finance_src_total_loan') : null;
             $appData->n_finance_src_loc_total_financing_m = !empty($request->get('n_finance_src_loc_total_financing_m')) ? $request->get('n_finance_src_loc_total_financing_m') : null;
             $appData->n_finance_src_loc_total_financing_1 = !empty($request->get('n_finance_src_loc_total_financing_1')) ? $request->get('n_finance_src_loc_total_financing_1') : null;
@@ -998,6 +1018,7 @@ class BidaRegistrationAmendmentController extends Controller
             $appData->n_public_water = isset($request->n_public_water) ? 1 : null;
             $appData->n_public_drainage = isset($request->n_public_drainage) ? 1 : null;
             $appData->n_public_others = isset($request->n_public_others) ? 1 : null;
+            $appData->n_public_others_field = $request->get('n_public_others_field');
 
             $appData->n_trade_licence_num = !empty($request->get('n_trade_licence_num')) ? $request->get('n_trade_licence_num') : null;
             $appData->n_trade_licence_issuing_authority = !empty($request->get('n_trade_licence_issuing_authority')) ? $request->get('n_trade_licence_issuing_authority') : null;
